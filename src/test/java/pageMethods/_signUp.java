@@ -59,7 +59,7 @@ public class _signUp extends _signUpPage {
 		_utils.fillData($cardNumber, "4111111111111111");
 		_utils.fillData($cardExpiry, _utils.getMonthYearMMYY(1, 0, 0));
 		_utils.fillData($cardSecurityCode, "123");
-		_utils.select($agreeCheck);
+		_utils.click($agreeCheck);
 		_utils.waitClick($paymentNow);
 	}
 }

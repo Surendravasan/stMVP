@@ -8,9 +8,11 @@ public class _propMgr {
 	private static _propMgr instance;
 	private static final Object lock = new Object();
 	private static String propertyFilePath = "config.properties";
-	private static String site;
+	public static String site;
 	private static String newUser;
 	private static String marketType;
+	private static String greenMarketId;
+	private static String blueMarketId;
 	
 	public static String baseUrl;
 	private static String username;
@@ -58,6 +60,8 @@ public class _propMgr {
 		site = prop.getProperty("environment");
 		newUser = prop.getProperty("newAccount");
 		marketType = prop.getProperty("marketType");
+		greenMarketId = prop.getProperty("greenMarket");
+		blueMarketId = prop.getProperty("blueMarket");
 
 		stgUsUser = prop.getProperty("stgUsUser");
 		stgUkUser = prop.getProperty("stgUkUser");
@@ -82,6 +86,22 @@ public class _propMgr {
 		return marketType; 
 	}
 	
+	public static int getGreenMarket() {
+		int storeid = 0;
+		if(greenMarketId.isEmpty()==false){
+			storeid = Integer.valueOf(greenMarketId);
+		}
+		return storeid; 
+	}
+	
+	public static int getBlueMarket() {
+		int storeid = 0;
+		if(blueMarketId.isEmpty()==false){
+			storeid = Integer.valueOf(blueMarketId);
+		}
+		return storeid; 
+	}
+	
 	public static String getNewUser() {
 		return newUser; 
 	}
@@ -90,7 +110,12 @@ public class _propMgr {
 			if(site.contains("staging")) { 
 				baseUrl = "https://staging.stortrack.com";
 			} else {
-				baseUrl = "https://www.stortrack.com";
+				if(_testData.regId==1) {
+					baseUrl = "https://www.stortrack.com";
+				} else if(_testData.regId==3) {
+					baseUrl = "https://www.stortrack.co.uk";
+				}
+				
 			}
 			return baseUrl;
 	}

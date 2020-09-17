@@ -19,7 +19,8 @@ public class _allStoresPage {
 	protected By loader = By.cssSelector("div.loading");
 	
 	
-	@FindBy(css="a[href*='all-store']")
+//	@FindBy(css="a[href*='all-store']")
+	@FindBy(css="div[class*='widget'] a[href*='all-store-list']")
 	protected WebElement $allStoresLink;
 	
 	@FindBy(css="a[href*='all-store'][class*='btn']")
@@ -54,6 +55,12 @@ public class _allStoresPage {
 	
 	/* Grid Header */
 	
+	@FindBy(xpath="//table[@class='comp-view-grid table']//tbody//table/ancestor::tr")
+	protected List<WebElement> $storesCount;
+	
+	@FindBy(css="table[class*='comp-view-grid']>tbody>tr>td[class*='no-data']")
+	protected List<WebElement> $noCompetitorText;
+		
 	@FindBy(css="table.comp-view-grid.table>tbody>tr")
 	protected List<WebElement> $storeList;
 	

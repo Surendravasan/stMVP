@@ -1,8 +1,6 @@
 package objRepository;
 
-import java.util.List;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
@@ -19,6 +17,18 @@ public class _defineMarketPage {
 	@FindBy(css="div.loading")
 	protected WebElement $loading;
 	
+	protected int $minRadius() {
+		int a = Integer.valueOf(_base.driver.findElement(By.cssSelector("span[class*='slider']>span[role*='slider']")).getAttribute("aria-valuemin"));
+		return a; 
+	}
+	
+	protected int $maxRadius() {
+		int a = Integer.valueOf(_base.driver.findElement(By.cssSelector("span[class*='slider']>span[role*='slider']")).getAttribute("aria-valuemax"));
+		return a; 
+	}
+	
+	@FindBy(css="span[class*='slider']>span[role*='slider']")
+	protected WebElement $slider;
 	
 //	@FindBy(xpath="//span[contains(@class,'slider')]")
 //	protected WebElement $slider;

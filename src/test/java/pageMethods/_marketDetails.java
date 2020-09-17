@@ -1,13 +1,9 @@
 package pageMethods;  
 
 import java.util.List;
-
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
-
 import objRepository._marketDetailsPage;
-import pageUtilities._base;
+import pageUtilities._databaseUtils;
 import pageUtilities._testData;
 import pageUtilities._utils;
 
@@ -61,14 +57,22 @@ public class _marketDetails extends _marketDetailsPage {
 	
 	
 	public void selectState() {
-		System.out.println(_testData.state);
+
 		List<WebElement> stateList = $stateList;
 		for (WebElement stateLists : stateList) {
 			String listValue = stateLists.getAttribute("value");
-		    if (listValue.toLowerCase().startsWith(_testData.state.toLowerCase())) {
-		    	_utils.select(stateLists);
-		        break;
-		    }
+			if(_testData.regId==1) {
+				if (listValue.toLowerCase().startsWith(_testData.state.toLowerCase())) {
+			    	_utils.click(stateLists);
+			        break;
+			    }
+			} else if(_testData.regId==3) {
+				String countryName = _databaseUtils.getStringValue(_testData.queryIns.getCountryFullName()).toLowerCase();
+				if (listValue.toLowerCase().startsWith(countryName)) {
+			    	_utils.click(stateLists);
+			        break;
+			    }
+			}
 		}
 	}
 		
@@ -78,7 +82,7 @@ public class _marketDetails extends _marketDetailsPage {
 		for (WebElement cityLists : cityList) {
 			String listValue = cityLists.getAttribute("value");
 		    if (listValue.toLowerCase().startsWith(_testData.city.toLowerCase())) {
-		    	_utils.select(cityLists);
+		    	_utils.click(cityLists);
 		        break;
 		    }
 		}

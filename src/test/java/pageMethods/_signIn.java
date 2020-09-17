@@ -16,7 +16,7 @@ public class _signIn extends _signInPage {
 		_utils.waitForElementClickable($username);
 		_utils.fillData($username, _propMgr.getUsername());
 		_utils.fillData($password, _propMgr.getPassword());
-		_utils.select($mvpRadio);
+		_utils.click($mvpRadio);
 		_utils.waitClick($loginBtn);
 	}
 

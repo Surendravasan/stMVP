@@ -26,7 +26,7 @@ public class _myMarketPage {
 	protected WebElement $marketname;
 	
 	protected WebElement $marketname(WebDriver driver, int userStoreId) {
-		return driver.findElement(By.xpath("//div[@class='market-div']//tbody/tr//a[contains(@href,'"+userStoreId+"')]"));
+		return driver.findElement(By.xpath("//div[@class='market-div']//tbody/tr//a[contains(@href,'market-view-palette/"+userStoreId+"/')]"));
 	}
 	
 	@FindBy(css="button[title*='Remove from Viewer']")

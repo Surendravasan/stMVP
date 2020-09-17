@@ -6,4 +6,34 @@
       <class name="tests._mvpTest"/>
     </classes>
   </test> <!-- Default test -->
+  <test name="Default test(failed)">
+    <classes>
+      <class name="tests._mvpTest">
+        <methods>
+          <include name="currentInventoryAvailability"/>
+          <include name="prRatePerSqFtHistoryGraph"/>
+          <include name="tearDown"/>
+          <include name="prAverageUnitTypeRates"/>
+          <include name="login"/>
+          <include name="marketOverview"/>
+          <include name="inventoryAvailabilityHistory"/>
+          <include name="prAverageRatesHistory"/>
+          <include name="storesInMarketStoreTypes"/>
+          <include name="marketSpendingPower"/>
+          <include name="addMarket"/>
+          <include name="closeInstance"/>
+          <include name="marketSupplyMetrics"/>
+          <include name="prRateHistoryByStore"/>
+          <include name="demographics"/>
+          <include name="prRatePerSqFtByStoreType"/>
+          <include name="openBrowser"/>
+          <include name="createLog"/>
+          <include name="prRateVolatilityHistory"/>
+          <include name="prRatePerSqFtByUnitType"/>
+          <include name="storesInMarketUnitTypesOffered"/>
+          <include name="allStores"/>
+        </methods>
+      </class> <!-- tests._mvpTest -->
+    </classes>
+  </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->

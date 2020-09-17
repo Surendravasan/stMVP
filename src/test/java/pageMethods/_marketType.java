@@ -10,11 +10,11 @@ public class _marketType extends _marketTypePage {
 	}
 	
 	public void selectGeoLocation() {
-		_utils.select($geoLocationRadio);
+		_utils.click($geoLocationRadio);
 	}
 	
 	public void selectCityList() {
-		_utils.select($cityListRadio);
+		_utils.click($cityListRadio);
 	}
 	
 	public void saveMarketType() {

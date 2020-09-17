@@ -10,9 +10,9 @@ import org.openqa.selenium.support.PageFactory;
 
 import pageUtilities._base;
 
-public class _execSummaryPage {
+public class _executiveSummaryPage {
 	
-	public _execSummaryPage() {
+	public _executiveSummaryPage() {
 		PageFactory.initElements(_base.driver, this);
 	}
 	
@@ -41,12 +41,31 @@ public class _execSummaryPage {
 	
 	/* Current Supply to Market */
 	
-	@FindBy(xpath="//a[contains(text(),'Current Supply')]")
+	@FindBy(xpath="//div[@class='excutive-summary']//ul//a[contains(text(),'Current Supply')]")
 	protected WebElement $currentSupplyLink;
-	
 	
 	@FindBy(css="div.tab-pane.active p:nth-child(2)")
 	protected WebElement $inventoryText;
 	
+	
+	/* Rate Trends */
+	
+	@FindBy(xpath="//div[@class='excutive-summary']//ul//a[contains(text(),'Rate Trends')]")
+	protected WebElement $rateTrendsLink;
+	
+	@FindBy(css="div.tab-pane.active p")
+	protected WebElement $rateTrendsText;
+	
+	
+	/* New Developments */
+	
+	@FindBy(xpath="//div[@class='excutive-summary']//ul//a[contains(text(),'New Developments')]")
+	protected WebElement $newDevelopmentsLink;
+	
+	@FindBy(css="div.tab-pane.active>div>div>p:nth-child(1)")
+	protected WebElement $newDevelopmentsText;
+	
+	@FindBy(css="div.tab-pane.active>div>div>p:nth-child(2)")
+	protected WebElement $totalDevelopmentsText;
 
 }

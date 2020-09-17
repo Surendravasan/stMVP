@@ -34,13 +34,13 @@ public class _excelUtils {
 		}
 	}
 	
-	public static void getMarket() {
-		if(_testData.marketTypeId==1) {
-			getStoreAddress();
-		} else if(_testData.marketTypeId==3) {
-			getStateCity();
-		}
-	}
+//	public static void getMarket() {
+//		if(_testData.marketTypeId==1) {
+//			getStoreAddress();
+//		} else if(_testData.marketTypeId==3) {
+//			getStateCity();
+//		}
+//	}
 	
 	public static void getStoreAddress() {
 		sh = wb.getSheet("address");
@@ -92,12 +92,12 @@ public class _excelUtils {
 	}
 
 	public static void setStoreProcessed() {
-		String updateSheet = "";
-		if(_testData.marketTypeId==1) {
-			updateSheet = "address";
-		} else if (_testData.marketTypeId==3) {
-			updateSheet = "cityState";
-		}
+		String updateSheet = "address";
+//		if(_testData.marketTypeId==1) {
+//			updateSheet = "address";
+//		} else if (_testData.marketTypeId==3) {
+//			updateSheet = "cityState";
+//		}
 		
 		try {
 			sh = wb.getSheet(updateSheet);

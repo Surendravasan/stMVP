@@ -34,7 +34,7 @@ public class _marketDetailsPage {
 	@FindBy(id="zipcode")
 	protected WebElement $zipCode;
 	
-	@FindBy(xpath="//b[contains(text(),'Market Type')]/ancestor::div[contains(@id,'title')]/following-sibling::div//button[contains(text(),'Save')]")
+	@FindBy(xpath="//b[contains(text(),'Market Type')]/ancestor::div[contains(@id,'title')]/following-sibling::div//div[@class='step_btn']//button[1]")
 	protected WebElement $saveAddress;
 	
 	@FindBy(css="select[id='state-radio']>option")

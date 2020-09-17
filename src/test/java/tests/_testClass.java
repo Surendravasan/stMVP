@@ -1,68 +1,36 @@
  package tests;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.Period;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
+import java.util.LinkedList;
+import java.util.Locale;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 
-import pageMethods._allStores;
+import pageUtilities.Queries;
 import pageUtilities._databaseUtils;
-import pageUtilities._queries;
+import pageUtilities._propMgr;
 import pageUtilities._testData;
-
+import pageUtilities._ukQueries;
+import pageUtilities._usQueries;
 
 public class _testClass {
 	
-	
 	@Test
-	public void man() {
-		String s = "Across all unit types, there is currently 50% of inventory offline (not available). "
-				+ "The US national figure at the moment is 60% of inventory offline "
-				+ "and the Arizona state number is 60% offline. "
-				+ "Therefore, comparing against national and state averages, "
-				+ "this market's supply level could be characterized as relatively low";
+	public void tess() {
 		
-		String a[] = s.replace(". ","").replaceAll("[A-z ,()']", "").split("%");
-		Float marketValue = Float.valueOf(a[0]);
-		System.out.println(marketValue);
-		Float nationalValue = Float.valueOf(a[1]);
-		System.out.println(nationalValue);
-		Float stateValue = Float.valueOf(a[2]);
-		System.out.println(stateValue);
-
-		String q="";
-		if(marketValue > nationalValue && marketValue > stateValue) {
-			q = "high";
-		} else if(marketValue < nationalValue && marketValue < stateValue) {
-			q = "low";
-		} else if(marketValue > nationalValue && marketValue <= stateValue || marketValue < nationalValue && marketValue >= stateValue) {
-			q = "mixed";
-		} else if(marketValue >= nationalValue && marketValue < stateValue || marketValue <= nationalValue && marketValue > stateValue) {
-			q = "mixed";
-		} else if(marketValue.equals(nationalValue) && marketValue.equals(stateValue)) {
-			q = "level";
-		}
-		System.out.println(q);
+		_smokeTests obj = new _smokeTests1();
+		System.out.println(obj.getMarketType(5));
+		System.out.println(obj.overTotalRentSqFo());
+		
+		
 	}
-	
 }
-			
-	
-				
+		
+

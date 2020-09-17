@@ -4,12 +4,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
 
 public class _databaseUtils {
 	
@@ -28,8 +26,15 @@ public class _databaseUtils {
 		return instance;
 	}
 	
+
 	private void openDbConn() {
-		String DB_URL ="jdbc:sqlserver://35.167.107.202:3421;databaseName=StorTrack_Optimize_Staging";
+		String DB_URL;
+		if(_propMgr.site.contains("staging")) { 
+			DB_URL ="jdbc:sqlserver://35.167.107.202:3421;databaseName=StorTrack_Optimize_Staging";
+		} else {
+			DB_URL ="jdbc:sqlserver://35.167.107.202:3421;databaseName=StorTrack_Optimize";
+		}
+		
 		
 		try {
 			//Class.forName("net.sourceforge.jtds.jdbc.Driver");	
@@ -42,28 +47,118 @@ public class _databaseUtils {
 			}
 		}
 	
+	
+	
+	
 	public static HashMap<String, String> getColumnValues(String query) {
 		HashMap<String, String> map = new HashMap<String, String>();
-		
 		
 		try {
 		st = con.createStatement();
 		ResultSet rs = st.executeQuery(query);
 		int count = rs.getMetaData().getColumnCount();
 		while(rs.next()) {
-
 			for(int i=1; i<=count; i++) {
-				map.put(rs.getMetaData().getColumnName(i), rs.getString(i));
+				map.put(rs.getMetaData().getColumnName(i), (rs.getString(i)==null) ? rs.getString(i) : rs.getString(i).trim());
 			}
 		} 
 		} catch (Exception e) {
 			System.out.println("getColumnValues: Database Connection Failed "+e);
-			
-			
 		}
 		return map;
 	}
-//	
+	
+	
+	public static LinkedHashMap<String, String> mapStrFl(String query) {
+		LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+		
+		try {
+		st = con.createStatement();
+		ResultSet rs = st.executeQuery(query);
+		int count = rs.getMetaData().getColumnCount();
+		while(rs.next()) {
+			for(int i=1; i<=count; i++) {
+				map.put(rs.getMetaData().getColumnName(i), (rs.getString(i)==null) ? rs.getString(i) : rs.getBigDecimal(i).toPlainString());
+			}
+		} 
+		} catch (Exception e) {
+			System.out.println("getColumnValues: Database Connection Failed "+e);
+		}
+		return map;
+	}
+	
+	public static LinkedList<Date> test(String query) {
+		LinkedList<Date> hm = new LinkedList<>();
+		try {
+			st = con.createStatement();
+			ResultSet rs = st.executeQuery(query);
+			int count = rs.getMetaData().getColumnCount();
+			while(rs.next()) {
+				for(int i=1; i<=count; i++) {
+					hm.add(rs.getDate(i));
+				}
+			}
+		} catch (Exception e) {
+			System.out.println("getSingleValue: Database Connection Failed "+e);
+		}
+		return hm;
+	}
+	
+	
+	
+	public static HashMap<String, String> getMapString(String query) {
+		HashMap<String, String> map = new HashMap<String, String>();
+		_databaseUtils.getInstance();
+		try {
+		st = con.createStatement();
+		ResultSet rs = st.executeQuery(query);
+		while(rs.next()) {
+				map.put(rs.getString(1).toLowerCase(), rs.getString(2));
+		} 
+		} catch (Exception e) {
+			System.out.println("getColumnValues: Database Connection Failed "+e);
+		}
+		return map;
+	}
+	
+	
+	
+	public static Date getDate(String query) {
+		Date d = null;
+		try {
+			st = con.createStatement();
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				d = rs.getDate(1);
+			}
+		} catch (Exception e) {
+			System.out.println("getSingleValue: Database Connection Failed "+e);
+		}
+		return d;
+	}
+	
+	
+	
+	public static String getStringValue(String query) {
+		String db = "";
+//		String s = "";
+		try {
+			_databaseUtils.st = _databaseUtils.con.createStatement();
+			ResultSet rs = _databaseUtils.st.executeQuery(query);
+			while(rs.next()) {
+				db = (rs.getString(1)==null) ? "N/A" : (rs.getString(1).matches(".*[A-z].*")) ? rs.getString(1) : String.valueOf(rs.getFloat(1)).replaceAll("()\\.0+$|(\\..+?)0+$", "$2");         //rs.getBigDecimal(1).toPlainString();
+//				s = s+" "+db;
+			}
+		} catch (Exception e) {
+			System.out.println("getSingleValue: Database Connection Failed "+e);
+		}
+		System.out.println(db.trim());
+		return db.trim();
+	}
+
+	
+	
+	//	
 //	public static ArrayList<Integer> getRowValues(String query) {
 //		ArrayList<Integer> list = new ArrayList<Integer>();
 //		
@@ -89,23 +184,7 @@ public class _databaseUtils {
 //		return list;
 //	}
 //	
-	public static HashMap<String, String> getMapString(String query) {
-		HashMap<String, String> map = new HashMap<String, String>();
-		
-		try {
-		st = con.createStatement();
-		String selectquery = query;
-		ResultSet rs = st.executeQuery(selectquery);
-		while(rs.next()) {
-				map.put(rs.getString(1), rs.getString(2));
-		} 
-		} catch (Exception e) {
-			System.out.println("getColumnValues: Database Connection Failed "+e);
-		}
-		return map;
-		
-		
-	}
+	
 //	
 //	public static TreeSet<Integer> getValue(String query) {
 //		TreeSet<Integer> ts = new TreeSet<Integer>();
@@ -147,19 +226,7 @@ public class _databaseUtils {
 //	}
 //	
 //	
-	public static Date getDate(String query) {
-		Date d = null;
-		try {
-			st = con.createStatement();
-			ResultSet rs = st.executeQuery(query);
-			while(rs.next()) {
-				d = rs.getDate(1);
-			}
-		} catch (Exception e) {
-			System.out.println("getSingleValue: Database Connection Failed "+e);
-		}
-		return d;
-	}
+
 //	
 //	public static int getIntValue(String query) {
 //		int value = 0;
@@ -176,24 +243,6 @@ public class _databaseUtils {
 //	}
 //	
 //	
-	public static String getStringValue(String query) {
-		String db = "";
-		String s = "";
-		try {
-			_databaseUtils.st = _databaseUtils.con.createStatement();
-			ResultSet rs = _databaseUtils.st.executeQuery(query);
-			while(rs.next()) {
-				db = rs.getString(1);
-				s = s+" "+db;
-			}
-		} catch (Exception e) {
-			System.out.println("getSingleValue: Database Connection Failed "+e);
-		}
-		return s.trim();
-	}
-//	
-//	
-//	
 //	public static TreeSet<Float> getFloatSet(String query) {
 //		TreeSet<Float> set = new TreeSet<>();
 //		
@@ -208,5 +257,4 @@ public class _databaseUtils {
 //		}
 //		return set;
 //	}
-	
 }
