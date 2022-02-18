@@ -47,14 +47,4 @@ public class _storesInMarketUnitTypesPage {
 	protected WebElement $unitValue(WebDriver driver, int row, int cell) {
 		return _base.driver.findElement(By.cssSelector("table>tbody>tr:nth-child("+row+")>td:nth-child("+cell+")"));
 	}
-	
-	
-	/* Compare */
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='green'] select")
-	protected WebElement $greenDropDown;
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='blue'] select")
-	protected WebElement $blueDropDown;
-
 }

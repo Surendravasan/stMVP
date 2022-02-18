@@ -73,14 +73,4 @@ public class _prAverageRatesHistoryPage {
 	@FindBy(css="div[class*='wid-legend']>div:nth-child(4)>div[class*='price']")
 	protected WebElement $stateValue;
 
-	
-	/* Compare */
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='green'] select")
-	protected WebElement $greenDropDown;
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='blue'] select")
-	protected WebElement $blueDropDown;
-	
-	
 }

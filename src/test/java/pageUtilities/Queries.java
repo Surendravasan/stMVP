@@ -38,6 +38,13 @@ public interface Queries {
 
 	public String overAvgRateSqFt();
 	
+	public String overAvgRateSqFtAllUnits();
+	
+	public String overAvgRateSqFtNonCC();
+	
+	public String overAvgRateSqFtCC();
+	
+	
 	
 	/* All Stores List  - Overview Header*/
 	

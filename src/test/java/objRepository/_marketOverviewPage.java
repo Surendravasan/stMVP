@@ -30,5 +30,12 @@ public class _marketOverviewPage {
 		return _base.driver.findElement(By.cssSelector("div[class*='overview-header'] div[class*='height'][class*='row']>div:nth-child("+nth+") div[class*='value']"));
 	}
 	
+	protected int $noOfAvgSqFtValues(WebDriver driver, int nth) {
+		return _base.driver.findElements(By.cssSelector("div[class*='overview-header'] div[class*='height'][class*='row']>div:nth-child("+nth+")>div>div.other-values")).size();
+	}
+	
+	protected WebElement $sqFtValues(WebDriver driver, int section, int row) {
+		return _base.driver.findElement(By.cssSelector("div[class*='overview-header'] div[class*='height'][class*='row']>div:nth-child("+section+")>div>div[class*='values']:nth-child("+row+")"));
+	}
 
 }

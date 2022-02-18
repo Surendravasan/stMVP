@@ -2,9 +2,8 @@ package pageMethods;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-
-import org.openqa.selenium.support.ui.Select;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
@@ -22,6 +21,7 @@ public class _prRatePerSqFtByUnitType extends _prRatePerSqFtByUnitTypePage {
 	ExtentTest node;
 	_helperClass hc = new _helperClass();
 	HashMap<String, String> marketDetails;
+	List<String> comparedMarkets = new LinkedList<>();
 	
 	
 	public _prRatePerSqFtByUnitType() {
@@ -77,36 +77,36 @@ public class _prRatePerSqFtByUnitType extends _prRatePerSqFtByUnitTypePage {
 	
 	/* Rate per Square Feet by Unit Type - Green */
 	
-	public void greenRateByUnitType(String marketType) {
-		HashMap<String, String> dbValues;
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($title.getText()+" - "+market);
-		
-		/* query output values not matching for below units */
-		List<String> skippedUnits = Arrays.asList("");
-		
-		try {
-			if(marketType.equalsIgnoreCase("National")){
-				dbValues = _databaseUtils.getMapString(_testData.queryIns.nationalRateByUnitType());
-			} else {
-				dbValues = _databaseUtils.getMapString(_testData.queryIns.greenBlueRateByUnitType(marketDetails));
-			}
-			for(int i=1; i<=$unitList.size(); i++) {
-				try {
-					String unitName = $unitLabel(_base.driver, i).getText();
-					if(skippedUnits.contains(unitName.toUpperCase())==false) {
-						String unitValueUi = $unitValue(_base.driver, 2, i).getText();
-						String unitValueDb = dbValues.get(unitName.toLowerCase());
-						_helperClass.compareUiDb(unitName, unitValueUi, unitValueDb, node);
-					}
-				} catch(Exception e) {
-					node.log(Status.ERROR, "Exception: "+e);
+	public void greenRateByUnitType() {
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			HashMap<String, String> dbValues;
+			node = test.createNode($title.getText()+" - "+hc.getGreenMarket());
+			
+			/* query output values not matching for below units */
+			List<String> skippedUnits = Arrays.asList("");
+			
+			try {
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					dbValues = _databaseUtils.getMapString(_testData.queryIns.nationalRateByUnitType());
+				} else {
+					dbValues = _databaseUtils.getMapString(_testData.queryIns.greenBlueRateByUnitType(marketDetails));
 				}
+				for(int i=1; i<=$unitList.size(); i++) {
+					try {
+						String unitName = $unitLabel(_base.driver, i).getText();
+						if(skippedUnits.contains(unitName.toUpperCase())==false) {
+							String unitValueUi = $unitValue(_base.driver, 2, i).getText();
+							String unitValueDb = dbValues.get(unitName.toLowerCase());
+							_helperClass.compareUiDb(unitName, unitValueUi, unitValueDb, node);
+						}
+					} catch(Exception e) {
+						node.log(Status.ERROR, "Exception: "+e);
+					}
+				}
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
-		
 	}
 	
 	
@@ -116,17 +116,16 @@ public class _prRatePerSqFtByUnitType extends _prRatePerSqFtByUnitTypePage {
 	
 	/* Rate per Square Feet by Unit Type - Blue */
 	
-	public void blueRateByUnitType(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void blueRateByUnitType() {
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues;
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($title.getText()+" - "+market);
+			node = test.createNode($title.getText()+" - "+hc.getBlueMarket());
 			
 			/* query output values not matching for below units */
 			List<String> skippedUnits = Arrays.asList("");
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.getMapString(_testData.queryIns.stateRateByUnitType());
 				} else {
 					dbValues = _databaseUtils.getMapString(_testData.queryIns.greenBlueRateByUnitType(marketDetails));
@@ -158,23 +157,25 @@ public class _prRatePerSqFtByUnitType extends _prRatePerSqFtByUnitTypePage {
 	
 	public void compareMarket() {
 		node = test.createNode("Compare Markets");
+		
+		comparedMarkets.add("-- None --");
+		comparedMarkets.add(hc.getGreenMarket());
+		comparedMarkets.add(hc.getBlueMarket());
+		
 		try {
 			hc.compareMarket();
 			
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.greenStoreName, ExtentColor.GREEN));
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.blueStoreName, ExtentColor.BLUE));
 			
-			String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-			String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-			
-			if(!greenSelection.contains("National Totals and Averages")) {
+			if(comparedMarkets.contains(hc.getGreenMarket())==false) {
 				marketDetails = hc.getGreenDetails();
-				greenRateByUnitType("compare");
+				greenRateByUnitType();
 			}
 			
-			if(!blueSelection.contains("State Total and Averages")) {
+			if(comparedMarkets.contains(hc.getBlueMarket())==false) {
 				marketDetails = hc.getBlueDetails();
-				blueRateByUnitType("compare");
+				blueRateByUnitType();
 			}
 		} catch(Exception e) {
 			node.log(Status.ERROR, "Exception: "+e);

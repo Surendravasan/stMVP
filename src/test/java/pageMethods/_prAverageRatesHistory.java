@@ -15,7 +15,6 @@ import com.aventstack.extentreports.markuputils.MarkupHelper;
 import objRepository._prAverageRatesHistoryPage;
 import pageUtilities._base;
 import pageUtilities._databaseUtils;
-import pageUtilities._queries;
 import pageUtilities._testData;
 import pageUtilities._utils;
 
@@ -28,6 +27,7 @@ public class _prAverageRatesHistory extends _prAverageRatesHistoryPage {
 	_helperClass hc = new _helperClass();
 	List<String> verifiedDateRangeList = new LinkedList<>();
 	List<String> noOfUnitsToTest;
+	List<String> comparedMarkets = new LinkedList<>();
 	
 	
 	public _prAverageRatesHistory() {
@@ -132,11 +132,7 @@ public class _prAverageRatesHistory extends _prAverageRatesHistoryPage {
 						nchild.log(Status.INFO, MarkupHelper.createLabel(dateLabel+dateValue, ExtentColor.BLUE));
 						thisMarket(uiMarketValue, unitName, dateValue);
 						greenValue(unitName, dateValue);
-						
-						String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-						if(!blueSelection.contains("-- None --")) {
-							blueValue(unitName, dateValue);
-						}
+						blueValue(unitName, dateValue);
 					}
 				} else {
 					nchild.log(Status.INFO, "No Data Found for this Unit Type");
@@ -165,15 +161,18 @@ public class _prAverageRatesHistory extends _prAverageRatesHistoryPage {
 	/* Validate Green value for specific UnitName and Date */
 	
 	void greenValue(String unitName, String dateValue) {
-		String nationalLabel = $nationalLabel.getText();
-		String nationalValue = $nationalValue.getText().replace("[", "").replace("]", "");
-		String dbGreenValue;
-		if(greenMarketDetails.isEmpty()==true) {
-			dbGreenValue = _databaseUtils.getStringValue(_testData.queryIns.nationalAvgRateHistory(unitName, dateValue)); 
-		} else {
-			dbGreenValue = _databaseUtils.getStringValue(_testData.queryIns.greenBlueAvgRateHistory(unitName, dateValue, greenMarketDetails));
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			String greenMarketLabel = $nationalLabel.getText();
+			String greenMarketValue = $nationalValue.getText().replace("[", "").replace("]", "");
+			String dbGreenMarketValue;
+//			if(greenMarketDetails.isEmpty()==true) {
+			if(hc.getGreenMarket().contains("National Totals and Averages")){
+				dbGreenMarketValue = _databaseUtils.getStringValue(_testData.queryIns.nationalAvgRateHistory(unitName, dateValue)); 
+			} else {
+				dbGreenMarketValue = _databaseUtils.getStringValue(_testData.queryIns.greenBlueAvgRateHistory(unitName, dateValue, greenMarketDetails));
+			}
+			_helperClass.compareUiDb(greenMarketLabel, greenMarketValue, dbGreenMarketValue, nchild);
 		}
-		_helperClass.compareUiDb(nationalLabel, nationalValue, dbGreenValue, nchild);
 	}
 	
 	
@@ -182,15 +181,18 @@ public class _prAverageRatesHistory extends _prAverageRatesHistoryPage {
 	/* Validate Blue value for specific UnitName and Date */
 	
 	void blueValue(String unitName, String dateValue) {
-			String stateLabel = $stateLabel.getText();
-			String stateValue = $stateValue.getText().replace("[", "").replace("]", "");
-			String dbBlueValue;
-			if(blueMarketDetails.isEmpty()==true) {
-				dbBlueValue = _databaseUtils.getStringValue(_testData.queryIns.stateAvgRateHistory(unitName, dateValue)); 
+		if(!hc.getBlueMarket().contains("-- None --")) {
+			String blueMarketLabel = $stateLabel.getText();
+			String blueMarketValue = $stateValue.getText().replace("[", "").replace("]", "");
+			String dbBlueMarketValue;
+//			if(blueMarketDetails.isEmpty()==true) {
+			if(hc.getBlueMarket().contains("State Total and Averages")) {
+				dbBlueMarketValue = _databaseUtils.getStringValue(_testData.queryIns.stateAvgRateHistory(unitName, dateValue)); 
 			} else {
-				dbBlueValue = _databaseUtils.getStringValue(_testData.queryIns.greenBlueAvgRateHistory(unitName, dateValue, blueMarketDetails));;
+				dbBlueMarketValue = _databaseUtils.getStringValue(_testData.queryIns.greenBlueAvgRateHistory(unitName, dateValue, blueMarketDetails));;
 			}
-			_helperClass.compareUiDb(stateLabel, stateValue, dbBlueValue, nchild);
+			_helperClass.compareUiDb(blueMarketLabel, blueMarketValue, dbBlueMarketValue, nchild);
+		}
 	}
 	
 	
@@ -245,16 +247,19 @@ public class _prAverageRatesHistory extends _prAverageRatesHistoryPage {
 	
 	public void compareMarket() {
 		node = test.createNode("Compare Selected Markets");
+		
+		comparedMarkets.add("-- None --");
+		comparedMarkets.add(hc.getGreenMarket());
+		comparedMarkets.add(hc.getBlueMarket());
+		
 		try {
 			hc.compareMarket();
 			
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.greenStoreName, ExtentColor.GREEN));
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.blueStoreName, ExtentColor.BLUE));
 			
-			String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-			String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-			
-			if(!greenSelection.contains("National Totals and Averages") || !blueSelection.contains("State Total and Averages")) {
+//			if(!greenSelection.contains("National Totals and Averages") || !blueSelection.contains("State Total and Averages")) {
+			if((comparedMarkets.contains(hc.getGreenMarket())==false) || (comparedMarkets.contains(hc.getBlueMarket())==false)) {
 				greenMarketDetails = hc.getGreenDetails();
 				blueMarketDetails = hc.getBlueDetails();
 				dateRange3Months();
@@ -281,18 +286,3 @@ public class _prAverageRatesHistory extends _prAverageRatesHistoryPage {
 	}
 
 }
-
-
-
-//	void allUnits() {
-//	_base.driver.findElements(By.cssSelector("select#hisactivedur>option:not([value*='All'])"));
-//	for(int i=1; i<=$unitTypeLists.size(); i++) {
-//		try {
-//			_utils.selectDropDownByIndex($unitTypeDropDown, i);
-//			String unitName = new Select($unitTypeDropDown).getFirstSelectedOption().getText();
-//			System.out.println(unitName);
-//		} catch (Exception e) {
-//			node.log(Status.ERROR, "Exception: "+e);
-//		}
-//	}
-//}

@@ -2,11 +2,9 @@ package pageMethods;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
-
 import objRepository._marketOverviewPage;
 import pageUtilities._base;
 import pageUtilities._databaseUtils;
-import pageUtilities._queries;
 import pageUtilities._testData;
 import pageUtilities._utils;
 
@@ -23,43 +21,73 @@ public class _marketOverview extends _marketOverviewPage {
 	public void headerOverview() {
 		try {
 			for(int i=1; i<=$headerList.size(); i++) {
-				String uiLabel = "";
-				String uiValue = "";
+				String uiLabel = $headerLabel(_base.driver, i).getText();
+				String uiValue = $headerValue(_base.driver, i).getText();
 				String dbValue = "";
-				switch(i) {
-				case 1:
-					uiLabel = $headerLabel(_base.driver, i).getText();
-					uiValue = $headerValue(_base.driver, i).getText();
+				switch(uiLabel) {
+				
+				case "Total Rentable Square Footage":
+//					uiLabel = $headerLabel(_base.driver, i).getText();
+//					uiValue = $headerValue(_base.driver, i).getText();
 					dbValue = _databaseUtils.getStringValue(_testData.queryIns.overTotalRentSqFo());
 					_helperClass.compareUiDb(uiLabel, uiValue, dbValue, test);
 					break;
-				case 2:
-					uiLabel = $headerLabel(_base.driver, i).getText();
-					uiValue = $headerValue(_base.driver, i).getText();
+					
+				case "Sq Ft/Capita":
+//					uiLabel = $headerLabel(_base.driver, i).getText();
+//					uiValue = $headerValue(_base.driver, i).getText();
 					dbValue = _databaseUtils.getStringValue(_testData.queryIns.overSqCapita());
 					_helperClass.compareUiDb(uiLabel, uiValue, dbValue, test);
 					break;
-				case 3:
-					uiLabel = $headerLabel(_base.driver, i).getText();
-					uiValue = $headerValue(_base.driver, i).getText();
+					
+				case "No. of Stores in Market":
+//					uiLabel = $headerLabel(_base.driver, i).getText();
+//					uiValue = $headerValue(_base.driver, i).getText();
 					dbValue = _databaseUtils.getStringValue(_testData.queryIns.overNoOfStores());
 					_helperClass.compareUiDb(uiLabel, uiValue, dbValue, test);
 					break;
-				case 4:
-					uiLabel = $headerLabel(_base.driver, i).getText();
-					uiValue = $headerValue(_base.driver, i).getText();
-					dbValue = _databaseUtils.getStringValue(_testData.queryIns.overAvgRateSqFt());
-					_helperClass.compareUiDb(uiLabel, uiValue, dbValue, test);
+					
+				case "Avg. Rate/Sq Ft":
+//					uiLabel = $headerLabel(_base.driver, i).getText();
+//					uiValue = $headerValue(_base.driver, i).getText();
+					int noOfUnitValues = $noOfAvgSqFtValues(_base.driver, i);
+					
+					if(noOfUnitValues==1) {
+						dbValue = _databaseUtils.getStringValue(_testData.queryIns.overAvgRateSqFt());
+						_helperClass.compareUiDb(uiLabel, uiValue, dbValue, test);
+					} else {
+						for(int j=2; j<=noOfUnitValues+1; j++) {
+							String unitType = $sqFtValues(_base.driver, i, j).getText();
+							String unitLabel = unitType.substring(0, unitType.indexOf(':'));
+							String unitValue = unitType.substring(unitType.indexOf(':')+2).trim();
+							switch(unitLabel.toLowerCase()) {
+							case "all units":
+								dbValue = _databaseUtils.getStringValue(_testData.queryIns.overAvgRateSqFtAllUnits());
+								_helperClass.compareUiDb(unitLabel, unitValue, dbValue, test);
+								break;
+							case "non-cc":
+								dbValue = _databaseUtils.getStringValue(_testData.queryIns.overAvgRateSqFtNonCC());
+								_helperClass.compareUiDb(unitLabel, unitValue, dbValue, test);
+								break;
+							case "cc":
+								dbValue = _databaseUtils.getStringValue(_testData.queryIns.overAvgRateSqFtCC());
+								_helperClass.compareUiDb(unitLabel, unitValue, dbValue, test);
+								break;
+							}
+						}
+					}
 					break;
-				case 5:
-					uiLabel = $headerLabel(_base.driver, i).getText();
-					uiValue = $headerValue(_base.driver, i).getText();
+					
+				case "Avg. Inventory Availability":
+//					uiLabel = $headerLabel(_base.driver, i).getText();
+//					uiValue = $headerValue(_base.driver, i).getText();
 					/* No query
 					dbValue = _databaseUtils.getStringValue(_queries.overNoOfStores());
 					_helperClass.compareUiDb(uiLabel, uiValue, dbValue, test);
 					*/
 					break;
-				case 6:
+					
+				case "Expected Supply Growth Next Year":
 					uiLabel = $headerLabel(_base.driver, i).getText();
 					uiValue = $headerValue(_base.driver, i).getText();
 					/* No query

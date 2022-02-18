@@ -10,7 +10,6 @@ import com.aventstack.extentreports.markuputils.MarkupHelper;
 import objRepository._allStoresPage;
 import pageUtilities._base;
 import pageUtilities._databaseUtils;
-import pageUtilities._queries;
 import pageUtilities._testData;
 import pageUtilities._utils;
 

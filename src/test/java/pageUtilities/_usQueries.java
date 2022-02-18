@@ -21,7 +21,7 @@ public class _usQueries implements Queries {
 	public Date maxDatePrice = _databaseUtils.getDate("select DatePrice from MaxDatePrice");
 	
 	public String getStateFullName() {
-		return "select Name from LookupStates where id = '"+_testData.state+"'";
+		return _databaseUtils.getStringValue("select Name from LookupStates where id = '"+_testData.state+"'");
 	}
 	
 	public String getCountryFullName() {
@@ -60,37 +60,81 @@ public class _usQueries implements Queries {
 	
 	public String overTotalRentSqFo() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select sum(cast (b.RentableSqFt as int)) as RentableSqFt from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" group by totalpopulation";
-		} else if(_testData.marketTypeId==3) {
-			query = "SELECT sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State";
-		}	
+			break;
+		case 3:
+		case 4:
+			query = "SELECT sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State";			
+			break;
+		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select sum(cast (b.RentableSqFt as int)) as RentableSqFt from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" group by totalpopulation";
+//		} else if(_testData.marketTypeId==3) {
+//			query = "SELECT sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State";
+//		}	
 		return query;
 	}
 	
 	public String overSqCapita() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select round(sum(cast (b.RentableSqFt as int))/c.totalpopulation,2) as SqFtCapita from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" group by totalpopulation";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "Select ROUND((RentableSqFt/population),2) from (SELECT 1 as rsf, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) f join (select 1 as pop, sum(TotalPopulation) as population from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+_testData.city+"' and abbr ='"+_testData.state+"')) s on f.rsf = s.pop";
+			break;
 		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select round(sum(cast (b.RentableSqFt as int))/c.totalpopulation,2) as SqFtCapita from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" group by totalpopulation";
+//		} else if(_testData.marketTypeId==3){
+//			query = "Select ROUND((RentableSqFt/population),2) from (SELECT 1 as rsf, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) f join (select 1 as pop, sum(TotalPopulation) as population from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+_testData.city+"' and abbr ='"+_testData.state+"')) s on f.rsf = s.pop";
+//		}
 		return query;
 	}
 	
 	public String overNoOfStores() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select count(a.storeid) as stores from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" group by totalpopulation";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "select count(*) from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+_testData.userStoreId;
-		}	
+			break;
+		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select count(a.storeid) as stores from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" group by totalpopulation";
+//		} else if(_testData.marketTypeId==3){
+//			query = "select count(*) from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+_testData.userStoreId;
+//		}	
 		return query;
 	}
 
 	
 	public String overAvgRateSqFt() {
-		String query = "select round(AVG(value),2) as OVERALLMARKETAVERAGE from (SELECT sp.onlineprice/nullif(((CASE WHEN ABS(S.width)=0 THEN 1 ELSE ABS(S.width) END)*(CASE WHEN ABS(S.length)=0 THEN 1 ELSE ABS(S.length) END)),0) as Value from SpacePrice sp WITH (NOLOCK) join stores st with (nolock) on sp.StoreID=st.StoreId Join MarketViewUserStoreCompSet mv with (nolock) on mv.storeid=St.StoreId and mv.userstoreid="+_testData.userStoreId+" join space s with (nolock) on s.SpaceID=sp.SpaceID JOIN DefaultUnitSizes d with (nolock) ON  d.id=s.DefaultUnitId and  d.CountryId='1,2' and  d.IsDefault=0 where st.StoreModFlag!=3 and st.RegionId=1 and st.countryid in (1,2) and sp.onlineprice!=0 and sp.IsCurrentPrice=1) as Avg";
+		return null;
+	}
+	
+	public String overAvgRateSqFtAllUnits() {
+		String query = "SELECT round(AVG(A.Price),2) as price FROM (SELECT Z.onlineprice/nullif(((CASE WHEN ABS(Sa.width)=0 THEN 1 ELSE ABS(Sa.width) END)*(CASE WHEN ABS(Sa.length)=0 THEN 1 ELSE ABS(Sa.length) END)),0) as price from Stores S1 JOIN SpacePrice Z ON S1.StoreID=Z.StoreID AND S1.CountryId=2 JOIN Space sa ON sa.SpaceID=Z.SpaceID AND Z.IsCurrentPrice = 1 AND Z.onlineprice !=0 AND Z.onlineprice Between 2 and 999 JOIN DefaultUnitSizes D ON D.ID=sa.DefaultUnitId and D.CountryId='1,2' and D.IsDefault=0 JOIN MarketViewUserStoreCompSet mvp on mvp.storeid=s1.storeid and mvp.userstoreid=13369 WHERE S1.StoreModFlag != 3 and d.IsDefault=0 UNION ALL SELECT Z.onlineprice/nullif(((CASE WHEN ABS(Sa.width)=0 THEN 1 ELSE ABS(Sa.width) END)*(CASE WHEN ABS(Sa.length)=0 THEN 1 ELSE ABS(Sa.length) END)),0) as price from Stores S1 JOIN SpacePrice Z ON S1.StoreID=Z.StoreID AND S1.CountryId=2 JOIN Space sa ON sa.SpaceID=Z.SpaceID AND Z.IsCurrentPrice = 1 AND Z.onlineprice !=0 AND Z.onlineprice Between 2 and 999 JOIN MarketViewUserStoreCompSet mvp on mvp.storeid=s1.storeid and mvp.userstoreid="+_testData.userStoreId+" WHERE S1.StoreModFlag != 3 AND sa.spacetype = 'Parking' AND sa.Car = 1 AND sa.RV = 1) A";
+		return query;
+	}
+	
+	public String overAvgRateSqFtNonCC() {
+		String query = "SELECT round(AVG(A.Price),2) as price FROM (SELECT Z.onlineprice/nullif(((CASE WHEN ABS(Sa.width)=0 THEN 1 ELSE ABS(Sa.width) END)*(CASE WHEN ABS(Sa.length)=0 THEN 1 ELSE ABS(Sa.length) END)),0) as price from Stores S1 JOIN SpacePrice Z ON S1.StoreID=Z.StoreID AND S1.CountryId=2 JOIN Space sa ON sa.SpaceID=Z.SpaceID AND Z.IsCurrentPrice = 1 AND Z.onlineprice !=0 AND Z.onlineprice Between 2 and 999 JOIN DefaultUnitSizes D ON D.ID=sa.DefaultUnitId and D.CountryId='1,2' and D.IsDefault=0 JOIN MarketViewUserStoreCompSet mvp on mvp.storeid=s1.storeid and mvp.userstoreid=13369 WHERE S1.StoreModFlag != 3 and d.IsDefault=0 and d.CC=0 UNION ALL SELECT Z.onlineprice/nullif(((CASE WHEN ABS(Sa.width)=0 THEN 1 ELSE ABS(Sa.width) END)*(CASE WHEN ABS(Sa.length)=0 THEN 1 ELSE ABS(Sa.length) END)),0) as price from Stores S1 JOIN SpacePrice Z ON S1.StoreID=Z.StoreID AND S1.CountryId=2 JOIN Space sa ON sa.SpaceID=Z.SpaceID AND Z.IsCurrentPrice = 1 AND Z.onlineprice !=0 AND Z.onlineprice Between 2 and 999 JOIN MarketViewUserStoreCompSet mvp on mvp.storeid=s1.storeid and mvp.userstoreid="+_testData.userStoreId+" WHERE S1.StoreModFlag != 3 AND sa.spacetype = 'Parking' AND sa.Car = 1 AND sa.RV = 1) A";
+		return query;
+	}
+	
+	public String overAvgRateSqFtCC() {
+		String query = "SELECT round(AVG(Z.onlineprice/nullif(((CASE WHEN ABS(Sa.width)=0 THEN 1 ELSE ABS(Sa.width) END)*(CASE WHEN ABS(Sa.length)=0 THEN 1 ELSE ABS(Sa.length) END)),0)),2) as price from Stores S1 JOIN SpacePrice Z ON S1.StoreID=Z.StoreID AND S1.CountryId=2 JOIN Space sa ON sa.SpaceID=Z.SpaceID AND Z.IsCurrentPrice = 1 AND Z.onlineprice !=0 AND Z.onlineprice Between 2 and 999 JOIN DefaultUnitSizes D ON D.ID=sa.DefaultUnitId and D.CountryId='1,2' and D.IsDefault=0 And D.CC=1 JOIN MarketViewUserStoreCompSet mvp on mvp.storeid=s1.storeid and mvp.userstoreid="+_testData.userStoreId+" WHERE S1.StoreModFlag != 3";
 		return query;
 	}
 	
@@ -155,18 +199,6 @@ public class _usQueries implements Queries {
 	
 	/* Executive Summary - No of Stores */
 	
-	public String execSummNoOfStores(int i) {
-		String query = "";
-		if(i==1) {
-			query = execSumThisMarket();
-		} else if(i==2) {
-			query = execSumNational();
-		} else if(i==3) {
-			query = execSumState();
-		}
-		return query;
-	}
-	
 	public String execSumThisMarket() {
 		String query = "select COUNT(*) as Storesinmarket from stores  with (nolock) where storeid in (select storeid from MarketViewUserStoreCompSet with (nolock) where userstoreid = "+_testData.userStoreId+") and storemodflag!= 3";
 		return query;
@@ -216,11 +248,21 @@ public class _usQueries implements Queries {
 		
 	public String popMarket() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select c.TotalPopulation as 'POPULATION SERVED', round((cast(c.TotalPopulation as int))/(c.LandArea),2) as 'POPULATION DENSITY (PER SQ MI)', round((cast(c.TotalPopulation as float))/COUNT(distinct a.storeid),0) as 'POPULATION/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalPopulation, LandArea";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "select populationserved as 'POPULATION SERVED', populationdensity as 'POPULATION DENSITY (PER SQ MI)', round(populationserved/storecount,0) as 'POPULATION/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalPopulation) as populationserved, round(sum((zwc.TotalPopulation))/sum(zwc.LandArea),2) as populationdensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+_testData.userStoreId+") as sto on serden.tomap1 = sto.tomap2";
+			break;
 		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select c.TotalPopulation as 'POPULATION SERVED', round((cast(c.TotalPopulation as int))/(c.LandArea),2) as 'POPULATION DENSITY (PER SQ MI)', round((cast(c.TotalPopulation as float))/COUNT(distinct a.storeid),0) as 'POPULATION/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalPopulation, LandArea";
+//		} else if(_testData.marketTypeId==3){
+//			query = "select populationserved as 'POPULATION SERVED', populationdensity as 'POPULATION DENSITY (PER SQ MI)', round(populationserved/storecount,0) as 'POPULATION/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalPopulation) as populationserved, round(sum((zwc.TotalPopulation))/sum(zwc.LandArea),2) as populationdensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+_testData.userStoreId+") as sto on serden.tomap1 = sto.tomap2";
+//		}
 		return query;
 	}
 	
@@ -240,11 +282,21 @@ public class _usQueries implements Queries {
 	
 	public String houHolMarket() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select c.TotalHouseHolds as HOUSEHOLDS, round((cast(c.TotalHouseHolds as int))/(c.LandArea),2) as 'HOUSEHOLD DENSITY (PER SQ MI)', round((cast(c.TotalHouseHolds as float))/COUNT(distinct a.storeid),0) as 'HOUSEHOLDS/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId= "+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalHouseHolds, LandArea";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "select households as HOUSEHOLDS, hhdensity as 'HOUSEHOLD DENSITY (PER SQ MI)', round(households/storecount,0) as 'HOUSEHOLDS/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalHouseholds) as households, round(sum((zwc.TotalHouseholds))/sum(zwc.LandArea),2) as hhdensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+_testData.userStoreId+") as sto on serden.tomap1 = sto.tomap2";
-		}	
+			break;
+		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select c.TotalHouseHolds as HOUSEHOLDS, round((cast(c.TotalHouseHolds as int))/(c.LandArea),2) as 'HOUSEHOLD DENSITY (PER SQ MI)', round((cast(c.TotalHouseHolds as float))/COUNT(distinct a.storeid),0) as 'HOUSEHOLDS/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId= "+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalHouseHolds, LandArea";
+//		} else if(_testData.marketTypeId==3){
+//			query = "select households as HOUSEHOLDS, hhdensity as 'HOUSEHOLD DENSITY (PER SQ MI)', round(households/storecount,0) as 'HOUSEHOLDS/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalHouseholds) as households, round(sum((zwc.TotalHouseholds))/sum(zwc.LandArea),2) as hhdensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+_testData.userStoreId+") as sto on serden.tomap1 = sto.tomap2";
+//		}	
 		return query;
 	}
 	
@@ -263,11 +315,21 @@ public class _usQueries implements Queries {
 	
 	public String renPropMarket() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select c.TotalRenterOccupied as 'RENTAL PROPERTIES', round((cast(c.TotalRenterOccupied as int))/(c.LandArea),2) as 'RENTAL PROPERTIES DENSITY (PER SQ MI)', round((cast(c.TotalRenterOccupied as float))/COUNT(distinct a.storeid),0) as 'RENTAL PROPERTIES/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+"  and c.ZoneCoverage="+_testData.radius+" group by TotalRenterOccupied, LandArea";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "select rentalproperties as 'RENTAL PROPERTIES', rendensity as 'RENTAL PROPERTIES DENSITY (PER SQ MI)', round(rentalproperties/storecount,0) as 'RENTAL PROPERTIES/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalRenterOccupied) as rentalproperties, round(sum((zwc.TotalRenterOccupied))/sum(zwc.LandArea),2) as rendensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+_testData.userStoreId+") as sto on serden.tomap1 = sto.tomap2";
-		}	
+			break;
+		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select c.TotalRenterOccupied as 'RENTAL PROPERTIES', round((cast(c.TotalRenterOccupied as int))/(c.LandArea),2) as 'RENTAL PROPERTIES DENSITY (PER SQ MI)', round((cast(c.TotalRenterOccupied as float))/COUNT(distinct a.storeid),0) as 'RENTAL PROPERTIES/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+"  and c.ZoneCoverage="+_testData.radius+" group by TotalRenterOccupied, LandArea";
+//		} else if(_testData.marketTypeId==3){
+//			query = "select rentalproperties as 'RENTAL PROPERTIES', rendensity as 'RENTAL PROPERTIES DENSITY (PER SQ MI)', round(rentalproperties/storecount,0) as 'RENTAL PROPERTIES/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalRenterOccupied) as rentalproperties, round(sum((zwc.TotalRenterOccupied))/sum(zwc.LandArea),2) as rendensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+_testData.userStoreId+") as sto on serden.tomap1 = sto.tomap2";
+//		}	
 		return query;
 	}
 	
@@ -287,32 +349,67 @@ public class _usQueries implements Queries {
 	
 	public String popGreenBlue(HashMap<String, String> mapDet) {
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select c.TotalPopulation as 'POPULATION SERVED', round((cast(c.TotalPopulation as int))/(c.LandArea),2) as 'POPULATION DENSITY (PER SQ MI)', round((cast(c.TotalPopulation as float))/COUNT(distinct a.storeid),0) as 'POPULATION/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalPopulation, LandArea";
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+			break;
+		case "3":
+		case "4":
 			query = "select populationserved as 'POPULATION SERVED', populationdensity as 'POPULATION DENSITY (PER SQ MI)', round(populationserved/storecount,0) as 'POPULATION/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalPopulation) as populationserved, round(sum((zwc.TotalPopulation))/sum(zwc.LandArea),2) as populationdensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+mapDet.get("UserStoreId")+") as sto on serden.tomap1 = sto.tomap2";
-		}	
+			break;
+		}
+		
+		
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select c.TotalPopulation as 'POPULATION SERVED', round((cast(c.TotalPopulation as int))/(c.LandArea),2) as 'POPULATION DENSITY (PER SQ MI)', round((cast(c.TotalPopulation as float))/COUNT(distinct a.storeid),0) as 'POPULATION/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalPopulation, LandArea";
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//			query = "select populationserved as 'POPULATION SERVED', populationdensity as 'POPULATION DENSITY (PER SQ MI)', round(populationserved/storecount,0) as 'POPULATION/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalPopulation) as populationserved, round(sum((zwc.TotalPopulation))/sum(zwc.LandArea),2) as populationdensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+mapDet.get("UserStoreId")+") as sto on serden.tomap1 = sto.tomap2";
+//		}	
 		return query;
 	}
 	
 	
 	public String houHolGreenBlue(HashMap<String, String> mapDet) {
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select c.TotalHouseHolds as HOUSEHOLDS, round((cast(c.TotalHouseHolds as int))/(c.LandArea),2) as 'HOUSEHOLD DENSITY (PER SQ MI)', round((cast(c.TotalHouseHolds as float))/COUNT(distinct a.storeid),0) as 'HOUSEHOLDS/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId= "+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalHouseHolds, LandArea";
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+			break;
+		case "3":
+		case "4":
 			query = "select households as HOUSEHOLDS, hhdensity as 'HOUSEHOLD DENSITY (PER SQ MI)', round(households/storecount,0) as 'HOUSEHOLDS/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalHouseholds) as households, round(sum((zwc.TotalHouseholds))/sum(zwc.LandArea),2) as hhdensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+mapDet.get("UserStoreId")+") as sto on serden.tomap1 = sto.tomap2";
-		}	
+			break;
+		}
+		
+		
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select c.TotalHouseHolds as HOUSEHOLDS, round((cast(c.TotalHouseHolds as int))/(c.LandArea),2) as 'HOUSEHOLD DENSITY (PER SQ MI)', round((cast(c.TotalHouseHolds as float))/COUNT(distinct a.storeid),0) as 'HOUSEHOLDS/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId= "+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalHouseHolds, LandArea";
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//			query = "select households as HOUSEHOLDS, hhdensity as 'HOUSEHOLD DENSITY (PER SQ MI)', round(households/storecount,0) as 'HOUSEHOLDS/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalHouseholds) as households, round(sum((zwc.TotalHouseholds))/sum(zwc.LandArea),2) as hhdensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+mapDet.get("UserStoreId")+") as sto on serden.tomap1 = sto.tomap2";
+//		}	
 		return query;
 	}
 	
 	public String rentalGreenBlue(HashMap<String, String> mapDet) {
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select c.TotalRenterOccupied as 'RENTAL PROPERTIES', round((cast(c.TotalRenterOccupied as int))/(c.LandArea),2) as 'RENTAL PROPERTIES DENSITY (PER SQ MI)', round((cast(c.TotalRenterOccupied as float))/COUNT(distinct a.storeid),0) as 'RENTAL PROPERTIES/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalRenterOccupied, LandArea";
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+			break;
+		case "3":
+		case "4":
 			query = "select rentalproperties as 'RENTAL PROPERTIES', rendensity as 'RENTAL PROPERTIES DENSITY (PER SQ MI)', round(rentalproperties/storecount,0) as 'RENTAL PROPERTIES/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalRenterOccupied) as rentalproperties, round(sum((zwc.TotalRenterOccupied))/sum(zwc.LandArea),2) as rendensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+mapDet.get("UserStoreId")+") as sto on serden.tomap1 = sto.tomap2";
-		}	
+			break;
+		}
+		
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select c.TotalRenterOccupied as 'RENTAL PROPERTIES', round((cast(c.TotalRenterOccupied as int))/(c.LandArea),2) as 'RENTAL PROPERTIES DENSITY (PER SQ MI)', round((cast(c.TotalRenterOccupied as float))/COUNT(distinct a.storeid),0) as 'RENTAL PROPERTIES/STORE' from MarketViewUserStoreCompSet a join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalRenterOccupied, LandArea";
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//			query = "select rentalproperties as 'RENTAL PROPERTIES', rendensity as 'RENTAL PROPERTIES DENSITY (PER SQ MI)', round(rentalproperties/storecount,0) as 'RENTAL PROPERTIES/STORE' from (SELECT 1 as tomap1, SUM(zwc.TotalRenterOccupied) as rentalproperties, round(sum((zwc.TotalRenterOccupied))/sum(zwc.LandArea),2) as rendensity FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as serden join (select 1 as tomap2, count(*) as storecount from MarketViewUserStoreCompSet with (nolock) where UserStoreId = "+mapDet.get("UserStoreId")+") as sto on serden.tomap1 = sto.tomap2";
+//		}	
 		return query;
 	}
 	
@@ -459,11 +556,21 @@ public class _usQueries implements Queries {
 	
 	public String houholdIncMarket() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (select 1 as tomap1, MedianHouseholdIncome from RadiusWiseCensusData where UserStoreID="+_testData.userStoreId+" and ZoneCoverage="+_testData.radius+") as hh join (select 1 as tomap2, (MedianHouseholdIncome*TotalHouseHolds) as AggregateHouseholdIncome from RadiusWiseCensusData where UserStoreID="+_testData.userStoreId+" and ZoneCoverage="+_testData.radius+") as agg on hh.tomap1 = agg.tomap2 join (select 1 as tomap3, count(*) as stores from MarketViewUserStoreCompSet where UserStoreID="+_testData.userStoreId+") as sto on agg.tomap2 = sto.tomap3";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (SELECT 1 as tomap1, ROUND(avg(zwc.MedianHouseholdIncome),0) as MedianHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as mhh join (SELECT 1 as tomap2, sum(zwc.MedianHouseholdIncome*zwc.TotalHouseholds) as AggregateHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as agg on mhh.tomap1 = agg.tomap2 join (select 1 as tomap3, COUNT(*) as stores from MarketViewUserStoreCompSet where UserStoreId="+_testData.userStoreId+") as sto on agg.tomap2 = sto.tomap3";
+			break;
 		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (select 1 as tomap1, MedianHouseholdIncome from RadiusWiseCensusData where UserStoreID="+_testData.userStoreId+" and ZoneCoverage="+_testData.radius+") as hh join (select 1 as tomap2, (MedianHouseholdIncome*TotalHouseHolds) as AggregateHouseholdIncome from RadiusWiseCensusData where UserStoreID="+_testData.userStoreId+" and ZoneCoverage="+_testData.radius+") as agg on hh.tomap1 = agg.tomap2 join (select 1 as tomap3, count(*) as stores from MarketViewUserStoreCompSet where UserStoreID="+_testData.userStoreId+") as sto on agg.tomap2 = sto.tomap3";
+//		} else if(_testData.marketTypeId==3){
+//			query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (SELECT 1 as tomap1, ROUND(avg(zwc.MedianHouseholdIncome),0) as MedianHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as mhh join (SELECT 1 as tomap2, sum(zwc.MedianHouseholdIncome*zwc.TotalHouseholds) as AggregateHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"') as agg on mhh.tomap1 = agg.tomap2 join (select 1 as tomap3, COUNT(*) as stores from MarketViewUserStoreCompSet where UserStoreId="+_testData.userStoreId+") as sto on agg.tomap2 = sto.tomap3";
+//		}
 		return query;
 	}
 	
@@ -482,11 +589,21 @@ public class _usQueries implements Queries {
 	
 	public String avgPropMarket() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select MedianPropertyValue as 'AVERAGE PROPERTY VALUE' from RadiusWiseCensusData where UserStoreID="+_testData.userStoreId+" and ZoneCoverage="+_testData.radius+"";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "SELECT ROUND(avg(zwc.MedianPropertyValue),0) as 'AVERAGE PROPERTY VALUE' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"'";
+			break;
 		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select MedianPropertyValue as 'AVERAGE PROPERTY VALUE' from RadiusWiseCensusData where UserStoreID="+_testData.userStoreId+" and ZoneCoverage="+_testData.radius+"";
+//		} else if(_testData.marketTypeId==3){
+//			query = "SELECT ROUND(avg(zwc.MedianPropertyValue),0) as 'AVERAGE PROPERTY VALUE' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"'";
+//		}
 		return query;
 	}
 	
@@ -505,11 +622,21 @@ public class _usQueries implements Queries {
 	
 	public String rentalPropMarket() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select AverageRent as 'AVERAGE RENTAL COSTS' from RadiusWiseCensusData where UserStoreID="+_testData.userStoreId+" and ZoneCoverage="+_testData.radius+"";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "SELECT ROUND(avg(zwc.AverageRent),0) as 'AVERAGE RENTAL COSTS' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"'";
+			break;
 		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select AverageRent as 'AVERAGE RENTAL COSTS' from RadiusWiseCensusData where UserStoreID="+_testData.userStoreId+" and ZoneCoverage="+_testData.radius+"";
+//		} else if(_testData.marketTypeId==3){
+//			query = "SELECT ROUND(avg(zwc.AverageRent),0) as 'AVERAGE RENTAL COSTS' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+_testData.city+"' and z.abbr='"+_testData.state+"'";
+//		}
 		return query;
 	}
 	
@@ -526,34 +653,65 @@ public class _usQueries implements Queries {
 	/* Compare */
 	
 	public String householdGreenBlue(HashMap<String, String> mapDet) {
-		System.out.println(mapDet);
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (select 1 as tomap1, MedianHouseholdIncome from RadiusWiseCensusData where UserStoreID="+mapDet.get("UserStoreId")+" and ZoneCoverage="+mapDet.get("zone")+") as hh join (select 1 as tomap2, (MedianHouseholdIncome*TotalHouseHolds) as AggregateHouseholdIncome from RadiusWiseCensusData where UserStoreID="+mapDet.get("UserStoreId")+" and ZoneCoverage="+mapDet.get("zone")+") as agg on hh.tomap1 = agg.tomap2 join (select 1 as tomap3, count(*) as stores from MarketViewUserStoreCompSet where UserStoreID="+mapDet.get("UserStoreId")+") as sto on agg.tomap2 = sto.tomap3";
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+			break;
+		case "3":
+		case "4":
 			query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (SELECT 1 as tomap1, ROUND(avg(zwc.MedianHouseholdIncome),0) as MedianHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as mhh join (SELECT 1 as tomap2, sum(zwc.MedianHouseholdIncome*zwc.TotalHouseholds) as AggregateHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as agg on mhh.tomap1 = agg.tomap2 join (select 1 as tomap3, COUNT(*) as stores from MarketViewUserStoreCompSet where UserStoreId="+mapDet.get("UserStoreId")+") as sto on agg.tomap2 = sto.tomap3";
+			break;
 		}
+		
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (select 1 as tomap1, MedianHouseholdIncome from RadiusWiseCensusData where UserStoreID="+mapDet.get("UserStoreId")+" and ZoneCoverage="+mapDet.get("zone")+") as hh join (select 1 as tomap2, (MedianHouseholdIncome*TotalHouseHolds) as AggregateHouseholdIncome from RadiusWiseCensusData where UserStoreID="+mapDet.get("UserStoreId")+" and ZoneCoverage="+mapDet.get("zone")+") as agg on hh.tomap1 = agg.tomap2 join (select 1 as tomap3, count(*) as stores from MarketViewUserStoreCompSet where UserStoreID="+mapDet.get("UserStoreId")+") as sto on agg.tomap2 = sto.tomap3";
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//			query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (SELECT 1 as tomap1, ROUND(avg(zwc.MedianHouseholdIncome),0) as MedianHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as mhh join (SELECT 1 as tomap2, sum(zwc.MedianHouseholdIncome*zwc.TotalHouseholds) as AggregateHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as agg on mhh.tomap1 = agg.tomap2 join (select 1 as tomap3, COUNT(*) as stores from MarketViewUserStoreCompSet where UserStoreId="+mapDet.get("UserStoreId")+") as sto on agg.tomap2 = sto.tomap3";
+//		}
 		return query;
 	}
 	
 	
 	public String avgPropGreenBlue(HashMap<String, String> mapDet) {
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select MedianPropertyValue as 'AVERAGE PROPERTY VALUE' from RadiusWiseCensusData where UserStoreID="+mapDet.get("UserStoreId")+" and ZoneCoverage="+mapDet.get("zone");
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
-				query = "SELECT ROUND(avg(zwc.MedianPropertyValue),0) as 'AVERAGE PROPERTY VALUE' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"'";
-		}
+			break;
+		case "3":
+		case "4":
+			query = "SELECT ROUND(avg(zwc.MedianPropertyValue),0) as 'AVERAGE PROPERTY VALUE' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"'";
+			break;
+		}		
+//		query = "select MedianHouseholdIncome as 'MEDIAN HOUSEHOLD INCOME', AggregateHouseholdIncome as 'AGGREGATE HOUSEHOLD INCOME', (AggregateHouseholdIncome/stores) as 'HOUSEHOLD INCOME/STORE' from (SELECT 1 as tomap1, ROUND(avg(zwc.MedianHouseholdIncome),0) as MedianHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as mhh join (SELECT 1 as tomap2, sum(zwc.MedianHouseholdIncome*zwc.TotalHouseholds) as AggregateHouseholdIncome FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"') as agg on mhh.tomap1 = agg.tomap2 join (select 1 as tomap3, COUNT(*) as stores from MarketViewUserStoreCompSet where UserStoreId="+mapDet.get("UserStoreId")+") as sto on agg.tomap2 = sto.tomap3";
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select MedianPropertyValue as 'AVERAGE PROPERTY VALUE' from RadiusWiseCensusData where UserStoreID="+mapDet.get("UserStoreId")+" and ZoneCoverage="+mapDet.get("zone");
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//				query = "SELECT ROUND(avg(zwc.MedianPropertyValue),0) as 'AVERAGE PROPERTY VALUE' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"'";
+//		}
 		return query;
 	}
 	
 	public String avgRentGreenBlue(HashMap<String, String> mapDet) {
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select AverageRent as 'AVERAGE RENTAL COSTS' from RadiusWiseCensusData where UserStoreID="+mapDet.get("UserStoreId")+" and ZoneCoverage="+mapDet.get("zone");
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+			break;
+		case "3":
+		case "4":
 			query = "SELECT ROUND(avg(zwc.AverageRent),0) as 'AVERAGE RENTAL COSTS' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"'";
+			break;
 		}
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select AverageRent as 'AVERAGE RENTAL COSTS' from RadiusWiseCensusData where UserStoreID="+mapDet.get("UserStoreId")+" and ZoneCoverage="+mapDet.get("zone");
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//			query = "SELECT ROUND(avg(zwc.AverageRent),0) as 'AVERAGE RENTAL COSTS' FROM ZipcodeWiseCensusData zwc with (nolock) JOIN ZipCodes z on z.zipcode=zwc.Zipcode where z.City='"+mapDet.get("City")+"' and z.abbr='"+mapDet.get("State")+"'";
+//		}
 		return query;
 	}
 	
@@ -562,11 +720,21 @@ public class _usQueries implements Queries {
 	
 	public String thisMarketCapita() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalPopulation as 'POPULATION', round(sum(cast(b.RentableSqFt as int))/c.TotalPopulation,2) as 'TOTAL RENTABLE SQ FT/CAPITA' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalPopulation";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', population as 'POPULATION', Round((RentableSqFt/population),2) as 'TOTAL RENTABLE SQ FT/CAPITA' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalPopulation) as population from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+_testData.city+"' and abbr ='"+_testData.state+"')) as pop on ren.tomap1 = pop.tomap2";
+			break;
 		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalPopulation as 'POPULATION', round(sum(cast(b.RentableSqFt as int))/c.TotalPopulation,2) as 'TOTAL RENTABLE SQ FT/CAPITA' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalPopulation";
+//		} else if(_testData.marketTypeId==3){
+//			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', population as 'POPULATION', Round((RentableSqFt/population),2) as 'TOTAL RENTABLE SQ FT/CAPITA' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalPopulation) as population from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+_testData.city+"' and abbr ='"+_testData.state+"')) as pop on ren.tomap1 = pop.tomap2";
+//		}
 		return query;
 	}
 	
@@ -585,11 +753,21 @@ public class _usQueries implements Queries {
 	
 	public String thisMarketHousehold() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
 			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalHouseHolds as 'HOUSEHOLDS', round(sum(cast(b.RentableSqFt as int))/c.TotalHouseHolds,2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalHouseHolds";
-		} else if(_testData.marketTypeId==3){
+			break;
+		case 3:
+		case 4:
 			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', households as 'HOUSEHOLDS', Round((RentableSqFt/households),2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalHouseholds) as households from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+_testData.city+"' and abbr ='"+_testData.state+"')) as pop on ren.tomap1 = pop.tomap2";
+			break;
 		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalHouseHolds as 'HOUSEHOLDS', round(sum(cast(b.RentableSqFt as int))/c.TotalHouseHolds,2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalHouseHolds";
+//		} else if(_testData.marketTypeId==3){
+//			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', households as 'HOUSEHOLDS', Round((RentableSqFt/households),2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalHouseholds) as households from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+_testData.city+"' and abbr ='"+_testData.state+"')) as pop on ren.tomap1 = pop.tomap2";
+//		}
 		return query;
 	}
 	
@@ -607,11 +785,21 @@ public class _usQueries implements Queries {
 	
 	public String thisMarketRentalProp() {
 		String query = "";
-		if(_testData.marketTypeId==1) {
-			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalRenterOccupied as 'RENTAL PROPERTIES', round(sum(cast(b.RentableSqFt as int))/c.TotalRenterOccupied,2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalRenterOccupied";
-		} else if(_testData.marketTypeId==3){
+		switch(_testData.marketTypeId) {
+		case 1:
+		case 2:
+			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalRenterOccupied as 'RENTAL PROPERTIES', round(sum(cast(b.RentableSqFt as int))/c.TotalRenterOccupied,2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalRenterOccupied";			
+			break;
+		case 3:
+		case 4:
 			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', rentalproperties as 'RENTAL PROPERTIES', Round((RentableSqFt/rentalproperties),2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, SUM(TotalRenterOccupied) as rentalproperties from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+_testData.city+"' and abbr ='"+_testData.state+"')) as pop on ren.tomap1 = pop.tomap2";
+			break;
 		}
+//		if(_testData.marketTypeId==1) {
+//			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalRenterOccupied as 'RENTAL PROPERTIES', round(sum(cast(b.RentableSqFt as int))/c.TotalRenterOccupied,2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+_testData.userStoreId+" and c.ZoneCoverage="+_testData.radius+" group by TotalRenterOccupied";
+//		} else if(_testData.marketTypeId==3){
+//			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', rentalproperties as 'RENTAL PROPERTIES', Round((RentableSqFt/rentalproperties),2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+_testData.state+"' and s.StoreModFlag!=3 and s.City='"+_testData.city+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, SUM(TotalRenterOccupied) as rentalproperties from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+_testData.city+"' and abbr ='"+_testData.state+"')) as pop on ren.tomap1 = pop.tomap2";
+//		}
 		return query;
 	}
 	
@@ -629,32 +817,63 @@ public class _usQueries implements Queries {
 	
 	public String greenBlueCapita(HashMap<String, String> mapDet) {
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalPopulation as 'POPULATION', round(sum(cast(b.RentableSqFt as int))/c.TotalPopulation,2) as 'TOTAL RENTABLE SQ FT/CAPITA' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalPopulation";
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+			break;
+		case "3":
+		case "4":
 			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', population as 'POPULATION', Round((RentableSqFt/population),2) as 'TOTAL RENTABLE SQ FT/CAPITA' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+mapDet.get("State")+"' and s.StoreModFlag!=3 and s.City='"+mapDet.get("City")+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalPopulation) as population from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+mapDet.get("City")+"' and abbr ='"+mapDet.get("State")+"')) as pop on ren.tomap1 = pop.tomap2";
+			break;
 		}
+		
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalPopulation as 'POPULATION', round(sum(cast(b.RentableSqFt as int))/c.TotalPopulation,2) as 'TOTAL RENTABLE SQ FT/CAPITA' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalPopulation";
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', population as 'POPULATION', Round((RentableSqFt/population),2) as 'TOTAL RENTABLE SQ FT/CAPITA' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+mapDet.get("State")+"' and s.StoreModFlag!=3 and s.City='"+mapDet.get("City")+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalPopulation) as population from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+mapDet.get("City")+"' and abbr ='"+mapDet.get("State")+"')) as pop on ren.tomap1 = pop.tomap2";
+//		}
 		return query;
 	}
 	
 	
 	public String greenBlueHoushold(HashMap<String, String> mapDet) {
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalHouseHolds as 'HOUSEHOLDS', round(sum(cast(b.RentableSqFt as int))/c.TotalHouseHolds,2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalHouseHolds";
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
-				query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', households as 'HOUSEHOLDS', Round((RentableSqFt/households),2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+mapDet.get("State")+"' and s.StoreModFlag!=3 and s.City='"+mapDet.get("City")+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalHouseholds) as households from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+mapDet.get("City")+"' and abbr ='"+mapDet.get("State")+"')) as pop on ren.tomap1 = pop.tomap2";
+			break;
+		case "3":
+		case "4":
+			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', households as 'HOUSEHOLDS', Round((RentableSqFt/households),2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+mapDet.get("State")+"' and s.StoreModFlag!=3 and s.City='"+mapDet.get("City")+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalHouseholds) as households from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+mapDet.get("City")+"' and abbr ='"+mapDet.get("State")+"')) as pop on ren.tomap1 = pop.tomap2";
+			break;
 		}
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalHouseHolds as 'HOUSEHOLDS', round(sum(cast(b.RentableSqFt as int))/c.TotalHouseHolds,2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalHouseHolds";
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//				query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', households as 'HOUSEHOLDS', Round((RentableSqFt/households),2) as 'TOTAL RENTABLE SQ FT/HOUSEHOLD' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+mapDet.get("State")+"' and s.StoreModFlag!=3 and s.City='"+mapDet.get("City")+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, sum(TotalHouseholds) as households from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+mapDet.get("City")+"' and abbr ='"+mapDet.get("State")+"')) as pop on ren.tomap1 = pop.tomap2";
+//		}
 		return query;
 	}
 	
 	public String greenBlueRentalProp(HashMap<String, String> mapDet) {
 		String query = "";
-		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+		switch(mapDet.get("MarketChoice")) {
+		case "1":
+		case "2":
 			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalRenterOccupied as 'RENTAL PROPERTIES', round(sum(cast(b.RentableSqFt as int))/c.TotalRenterOccupied,2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalRenterOccupied";
-		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+			break;
+		case "3":
+		case "4":
 			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', rentalproperties as 'RENTAL PROPERTIES', Round((RentableSqFt/rentalproperties),2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+mapDet.get("State")+"' and s.StoreModFlag!=3 and s.City='"+mapDet.get("City")+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, SUM(TotalRenterOccupied) as rentalproperties from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+mapDet.get("City")+"' and abbr ='"+mapDet.get("State")+"')) as pop on ren.tomap1 = pop.tomap2";
+			break;
 		}
+//		if(mapDet.get("MarketChoice").equalsIgnoreCase("1")) {
+//			query = "select sum(cast (b.RentableSqFt as int)) as 'TOTAL RENTABLE SQFT', c.TotalRenterOccupied as 'RENTAL PROPERTIES', round(sum(cast(b.RentableSqFt as int))/c.TotalRenterOccupied,2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from MarketViewUserStoreCompSet a join stores b on a.StoreId=b.StoreID join RadiusWiseCensusData c on a.UserStoreId=c.UserStoreID where a.UserStoreId="+mapDet.get("UserStoreId")+" and c.ZoneCoverage="+mapDet.get("zone")+" group by TotalRenterOccupied";
+//		} else if(mapDet.get("MarketChoice").equalsIgnoreCase("3")){
+//			query = "select RentableSqFt as 'TOTAL RENTABLE SQFT', rentalproperties as 'RENTAL PROPERTIES', Round((RentableSqFt/rentalproperties),2) as 'TOTAL RENTABLE SQ FT/RENTAL PROPERTIES' from (SELECT 1 as tomap1, sum(COALESCE(s.RentableSqFt,0)) as RentableSqFt FROM ZipcodeWiseCensusData zwc with (nolock) JOIN stores s ON s.zipcode=zwc.zipcode and s.state='"+mapDet.get("State")+"' and s.StoreModFlag!=3 and s.City='"+mapDet.get("City")+"' JOIN uscities c ON c.City=s.city and  c.State_id=s.State) as ren join (select 1 as tomap2, SUM(TotalRenterOccupied) as rentalproperties from ZipcodeWiseCensusData where Zipcode in (Select Zipcode from Zipcodes where City ='"+mapDet.get("City")+"' and abbr ='"+mapDet.get("State")+"')) as pop on ren.tomap1 = pop.tomap2";
+//		}
 		return query;
 	}
 	

@@ -15,7 +15,6 @@ import com.aventstack.extentreports.Status;
 import pageUtilities._base;
 import pageUtilities._databaseUtils;
 import pageUtilities._propMgr;
-import pageUtilities._queries;
 import pageUtilities._testData;
 import pageUtilities._utils;
 
@@ -83,11 +82,20 @@ public class _helperClass {
 	private WebElement $none;
 	
 	
+	/* Compare Markets */
+	
+	@FindBy(css="div[class*='compare-markets'] div[class*='green'] select")
+	protected WebElement $greenDropDown;
+	
+	@FindBy(css="div[class*='compare-markets'] div[class*='blue'] select")
+	protected WebElement $blueDropDown;
+	
+	
 	public void compareMarket() {
 		int loaderPresent;
 		int noOfSelection = 1;
 		while(noOfSelection<=2) {
-			System.out.println("test");
+			
 			selMarketOne();
 			selMarketTwo();
 			_utils.clickJs($applyCompare);
@@ -133,7 +141,8 @@ public class _helperClass {
 	public void resetCompMarket() {
 		int loaderPresent;
 		
-		if((!$blueSelVal.getText().contains("National Totals and Averages")) && (!$greenSelVal.getText().contains("State Total and Averages"))) {
+		
+//		if((!$blueSelVal.getText().contains("National Totals and Averages")) && (!$greenSelVal.getText().contains("State Total and Averages"))) {
 			_utils.click($nationalTotals);
 			if(_testData.regId==1) {
 				_utils.click($stateTotals);
@@ -152,7 +161,7 @@ public class _helperClass {
 				_base.driver.navigate().refresh();
 				_utils.waitForElementInVisibleByLocator(loader);
 			}
-		}
+//		}
 		userStoreIdList.clear();
 	}
 	
@@ -183,7 +192,9 @@ public class _helperClass {
 //					greenStoreName = $greenMarketInfo(_base.driver, random).getText();
 					greenUserStoreId = Integer.valueOf($greenMarketInfo(_base.driver, random).getAttribute("value"));
 					available = userStoreIdList.contains(greenUserStoreId);
-				}while(available==true);
+				} while(available==true);
+			} else {
+				greenUserStoreId = -1;
 			}
 		} else {
 			greenUserStoreId = _propMgr.getGreenMarket();
@@ -201,7 +212,7 @@ public class _helperClass {
 		if(_propMgr.getBlueMarket()==0) {
 			int marketsAvailable = $blueDDList.size();
 			boolean available;
-			System.out.println("Test");
+			
 			if(marketsAvailable!=0 && userStoreIdList.size()<=marketsAvailable) {
 				do {
 					random = _utils.getRandNumber($blueDDList.size());
@@ -209,6 +220,8 @@ public class _helperClass {
 					blueUserStoreId = Integer.valueOf($blueMarketInfo(_base.driver, random).getAttribute("value"));
 					available = userStoreIdList.contains(blueUserStoreId);
 				} while(available==true);
+			} else {
+				blueUserStoreId = -1;
 			}
 		} else {
 			blueUserStoreId = _propMgr.getBlueMarket();
@@ -308,6 +321,17 @@ public class _helperClass {
 //				_utils.clickJs(_base.driver.findElement(By.xpath("(//button[@title='Remove from Viewer'])[1]")));
 //			}
 //		}
+	}
+	
+	
+	public String getGreenMarket() {
+		String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText(); 
+		return greenSelection;
+	}
+	
+	public String getBlueMarket() {
+		String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText(); 
+		return blueSelection;
 	}
 
 }

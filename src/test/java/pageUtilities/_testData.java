@@ -6,18 +6,18 @@ import java.util.List;
 
 public class _testData {
 	
-	public static int regId = 1;
-	public static int countryId = 2;
+	public static int regId = 3;
+	public static int countryId = 8;
 	public static int storeId;
 	public static String storeName;
-	public static String address = "290 Southampton Street";
-	public static String city = "Boston";
-	public static String state = "MA";
-	public static String zipcode = "02118";
-	public static int userStoreId = 8333;
+	public static String address;
+	public static String city;
+	public static String state;
+	public static String zipcode;
+	public static int userStoreId = 14498;
 	public static String baseUrl;
-	public static int radius = 5;
-	public static int marketTypeId = 1;
+	public static int radius;
+	public static int marketTypeId = 3;
 	public static Queries queryIns; 
 	
 	static HashMap<String, String> map;

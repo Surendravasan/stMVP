@@ -1,8 +1,8 @@
 package pageMethods;
 
 import java.util.HashMap;
-
-import org.openqa.selenium.support.ui.Select;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
@@ -21,6 +21,7 @@ public class _marketSpendingPower extends _marketSpendingPowerPage {
 	ExtentTest node;
 	HashMap<String, String> marketDetails;
 	_helperClass hc = new _helperClass();
+	List<String> comparedMarkets = new LinkedList<>();
 	
 	
 	public _marketSpendingPower() {
@@ -69,29 +70,31 @@ public class _marketSpendingPower extends _marketSpendingPowerPage {
 	
 	/* Household Income/Store - Green Values */
 	
-	public void greenHouseholdIncome(String marketType) {
-		HashMap<String, String> dbValues;
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($titleHousehold.getText()+" - "+market);
+	public void greenHouseholdIncome() {
 		
-		try {
-			if(marketType.equalsIgnoreCase("National")){
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houholIncNational());
-			} else {
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.householdGreenBlue(marketDetails));
-			}
-			for(int i=1; i<=$noOfColunns.size(); i++) {
-				try {
-					String header = $houHolIncLabel(_base.driver, i).getText();
-					String uiValue = $houHolIncValues(_base.driver, 2, i).getText();
-					String dbValue = _helperClass.convertCurrency(dbValues.get(header));
-					_helperClass.compareUiDb(header, uiValue, dbValue, node);
-				} catch(Exception e) {
-					node.log(Status.ERROR, "Exception: "+e);
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			HashMap<String, String> dbValues;
+			node = test.createNode($titleHousehold.getText()+" - "+hc.getGreenMarket());
+			
+			try {
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houholIncNational());
+				} else {
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.householdGreenBlue(marketDetails));
 				}
+				for(int i=1; i<=$noOfColunns.size(); i++) {
+					try {
+						String header = $houHolIncLabel(_base.driver, i).getText();
+						String uiValue = $houHolIncValues(_base.driver, 2, i).getText();
+						String dbValue = _helperClass.convertCurrency(dbValues.get(header));
+						_helperClass.compareUiDb(header, uiValue, dbValue, node);
+					} catch(Exception e) {
+						node.log(Status.ERROR, "Exception: "+e);
+					}
+				}
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
 	}
 	
@@ -101,14 +104,13 @@ public class _marketSpendingPower extends _marketSpendingPowerPage {
 	
 	/* Household Income/Store - Blue Values */
 	
-	public void blueHouseholdIncome(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void blueHouseholdIncome() {
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues;
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($titleHousehold.getText()+" - "+market);
+			node = test.createNode($titleHousehold.getText()+" - "+hc.getBlueMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houholIncState());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.householdGreenBlue(marketDetails));
@@ -157,23 +159,24 @@ public class _marketSpendingPower extends _marketSpendingPowerPage {
 	
 	/* Average Property Value - Green Values */
 	
-	public void greenAverageProperty(String marketType) {
-		HashMap<String, String> dbValues;
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($titleAvgProp.getText()+" - "+market);
-		
-		try {
-			if(marketType.equalsIgnoreCase("National")){
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgPropNational());
-			} else {
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgPropGreenBlue(marketDetails));
+	public void greenAverageProperty() {
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			HashMap<String, String> dbValues;
+			node = test.createNode($titleAvgProp.getText()+" - "+hc.getGreenMarket());
+			
+			try {
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgPropNational());
+				} else {
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgPropGreenBlue(marketDetails));
+				}
+				String header = $avgPropLabel().getText();
+				String uiValue = $avgPropValueGreen().getText();
+				String dbValue = dbValues.get(header);
+				_helperClass.compareUiDb(header, uiValue, dbValue, node);
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-			String header = $avgPropLabel().getText();
-			String uiValue = $avgPropValueGreen().getText();
-			String dbValue = dbValues.get(header);
-			_helperClass.compareUiDb(header, uiValue, dbValue, node);
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
 	}
 	
@@ -183,14 +186,13 @@ public class _marketSpendingPower extends _marketSpendingPowerPage {
 	
 	/* Average Property Value - Blue Values */
 	
-	public void blueAverageProperty(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void blueAverageProperty() {
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues;
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($titleAvgProp.getText()+" - "+market);
+			node = test.createNode($titleAvgProp.getText()+" - "+hc.getBlueMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgPropState());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgPropGreenBlue(marketDetails));
@@ -234,25 +236,25 @@ public class _marketSpendingPower extends _marketSpendingPowerPage {
 	
 	/* Average Rental Costs - Green Values */
 	
-	public void greenAverageRental(String marketType) {
-		HashMap<String, String> dbValues;
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($titleAvgRent.getText()+" - "+market);
-		
-		try {
-			if(marketType.equalsIgnoreCase("National")){
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgRentNational());
-			} else {
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgRentGreenBlue(marketDetails));
+	public void greenAverageRental() {
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			HashMap<String, String> dbValues;
+			node = test.createNode($titleAvgRent.getText()+" - "+hc.getGreenMarket());
+			
+			try {
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgRentNational());
+				} else {
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgRentGreenBlue(marketDetails));
+				}
+					String header = $avgRentLabel().getText();
+					String uiValue = $avgRentGreen().getText();
+					String dbValue = dbValues.get(header);
+					_helperClass.compareUiDb(header, uiValue, dbValue, node);
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-				String header = $avgRentLabel().getText();
-				String uiValue = $avgRentGreen().getText();
-				String dbValue = dbValues.get(header);
-				_helperClass.compareUiDb(header, uiValue, dbValue, node);
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
-		
 	}
 	
 	
@@ -261,14 +263,13 @@ public class _marketSpendingPower extends _marketSpendingPowerPage {
 	
 	/* Average Rental Costs - Blue Values */
 	
-	public void blueAverageRental(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void blueAverageRental() {
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues;
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($titleAvgRent.getText()+" - "+market);
+			node = test.createNode($titleAvgRent.getText()+" - "+hc.getBlueMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.rentalPropState());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.avgRentGreenBlue(marketDetails));
@@ -292,29 +293,30 @@ public class _marketSpendingPower extends _marketSpendingPowerPage {
 	
 	public void compareMarket() {
 		node = test.createNode("Compare Markets");
+		
+		comparedMarkets.add("-- None --");
+		comparedMarkets.add(hc.getGreenMarket());
+		comparedMarkets.add(hc.getBlueMarket());
+		
 		try {
 			hc.compareMarket();
 			
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.greenStoreName, ExtentColor.GREEN));
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.blueStoreName, ExtentColor.BLUE));
 			
-			String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-			String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-			
-			if(!greenSelection.contains("National Totals and Averages")) {
+			if(comparedMarkets.contains(hc.getGreenMarket())==false) {
 				marketDetails = hc.getGreenDetails();
-				greenHouseholdIncome("Compare");
-				greenAverageProperty("Compare");
-				greenAverageRental("Compare");
+				greenHouseholdIncome();
+				greenAverageProperty();
+				greenAverageRental();
 			}
 			
-			if(!blueSelection.contains("State Total and Averages")) {
+			if(comparedMarkets.contains(hc.getBlueMarket())==false) {
 				marketDetails = hc.getBlueDetails();
-				blueHouseholdIncome("Compare");
-				blueAverageProperty("Compare");
-				blueAverageRental("Compare");
+				blueHouseholdIncome();
+				blueAverageProperty();
+				blueAverageRental();
 			}
-			
 		} catch(Exception e) {
 			node.log(Status.ERROR, "Exception: "+e);
 		}

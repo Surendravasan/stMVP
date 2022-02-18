@@ -1,8 +1,9 @@
 package pageMethods;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.openqa.selenium.support.ui.Select;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
@@ -21,6 +22,7 @@ public class _demographics extends _demographicsPage {
 	ExtentTest node;
 	HashMap<String, String> marketDetails;
 	_helperClass hc = new _helperClass();
+	List<String> comparedMarkets = new LinkedList<>();
 	
 	
 	public _demographics() {
@@ -63,16 +65,14 @@ public class _demographics extends _demographicsPage {
 	
 	/* Population/Store - Green Values */
 	
-	public void greenPopulation(String marketType) {
+	public void greenPopulation() {
 		
-		String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-		if(!greenSelection.contains("-- None --")) {
+		if(!hc.getGreenMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues = new HashMap<String, String>();
-			String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-			node = test.createNode($titlePopulation.getText()+" - "+market);
+			node = test.createNode($titlePopulation.getText()+" - "+hc.getGreenMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("National")){
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.popNational());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.popGreenBlue(marketDetails));
@@ -100,14 +100,14 @@ public class _demographics extends _demographicsPage {
 	
 	/* Population/Store - Blue Values */
 	
-	public void bluePopulation(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void bluePopulation() {
+		
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues = new HashMap<String, String>();
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($titlePopulation.getText()+" - "+market);
+			node = test.createNode($titlePopulation.getText()+" - "+hc.getBlueMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.popState());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.popGreenBlue(marketDetails));
@@ -161,31 +161,34 @@ public class _demographics extends _demographicsPage {
 	
 	/* Households/Store - Green Values */
 	
-	public void greenHouseholds(String marketType) {
-		HashMap<String, String> dbValues = new HashMap<String, String>();
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($titleHousehold.getText()+" - "+market);
+	public void greenHouseholds() {
 		
-		try {
-			if(marketType.equalsIgnoreCase("National")){
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houHolNational());
-			} else {
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houHolGreenBlue(marketDetails));
-			}
-			for(int i=1; i<=$noOfColHousehold.size(); i++) {
-				try {
-					String header = $houholColLabel(_base.driver, i).getText();
-					String uiValue = $houHolValues(_base.driver, 2, i).getText();
-					String dbValue = dbValues.get(header);
-					_helperClass.compareUiDb(header, uiValue, dbValue, node);
-				} catch(Exception e) {
-					node.log(Status.ERROR, "Exception: "+e);
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			HashMap<String, String> dbValues = new HashMap<String, String>();
+			node = test.createNode($titleHousehold.getText()+" - "+hc.getGreenMarket());
+			
+			try {
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houHolNational());
+				} else {
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houHolGreenBlue(marketDetails));
 				}
+				for(int i=1; i<=$noOfColHousehold.size(); i++) {
+					try {
+						String header = $houholColLabel(_base.driver, i).getText();
+						String uiValue = $houHolValues(_base.driver, 2, i).getText();
+						String dbValue = dbValues.get(header);
+						_helperClass.compareUiDb(header, uiValue, dbValue, node);
+					} catch(Exception e) {
+						node.log(Status.ERROR, "Exception: "+e);
+					}
+				}
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
 	}
+		
 	
 	
 	
@@ -194,14 +197,14 @@ public class _demographics extends _demographicsPage {
 	
 	/* Households/Store - Blue Values */
 	
-	public void blueHouseholds(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void blueHouseholds() {
+		
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues = new HashMap<String, String>();
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($titleHousehold.getText()+" - "+market);
+			node = test.createNode($titleHousehold.getText()+" - "+hc.getBlueMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houHolState());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.houHolGreenBlue(marketDetails));
@@ -255,27 +258,30 @@ public class _demographics extends _demographicsPage {
 	
 	/*  Rental Properties/Store - Green Values */
 	
-	public void greenRentalProperties(String marketType) {
-		HashMap<String, String> dbValues = new HashMap<String, String>();
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($titleRental.getText()+" - "+market);
-		
-		try {
-			if(marketType.equalsIgnoreCase("National")){
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.renPropNational());
-			} else {
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.rentalGreenBlue(marketDetails));
+	public void greenRentalProperties() {
+
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			HashMap<String, String> dbValues = new HashMap<String, String>();
+			node = test.createNode($titleRental.getText()+" - "+hc.getGreenMarket());
+			
+			try {
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.renPropNational());
+				} else {
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.rentalGreenBlue(marketDetails));
+				}
+				for(int i=1; i<=$noOfColRental.size(); i++) {
+					String header = $renProColLabel(_base.driver, i).getText();
+					String uiValue = $renProValues(_base.driver, 2, i).getText();
+					String dbValue = dbValues.get(header);
+					_helperClass.compareUiDb(header, uiValue, dbValue, node);
+				}
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-			for(int i=1; i<=$noOfColRental.size(); i++) {
-				String header = $renProColLabel(_base.driver, i).getText();
-				String uiValue = $renProValues(_base.driver, 2, i).getText();
-				String dbValue = dbValues.get(header);
-				_helperClass.compareUiDb(header, uiValue, dbValue, node);
-			}
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
 	}
+		
 	
 	
 	
@@ -284,14 +290,14 @@ public class _demographics extends _demographicsPage {
 	
 	/*  Rental Properties/Store - Blue Values */
 	
-	public void blueRentalProperties(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void blueRentalProperties() {
+		
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues = new HashMap<String, String>();
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($titleRental.getText()+" - "+market);
+			node = test.createNode($titleRental.getText()+" - "+hc.getBlueMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.renPropState());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.rentalGreenBlue(marketDetails));
@@ -321,27 +327,30 @@ public class _demographics extends _demographicsPage {
 	
 	public void compareMarket() {
 		node = test.createNode("Compare Markets");
+		
+		comparedMarkets.add("-- None --");
+		comparedMarkets.add(hc.getGreenMarket());
+		comparedMarkets.add(hc.getBlueMarket());
+		
 		try {
 			hc.compareMarket();
 			
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.greenStoreName, ExtentColor.GREEN));
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.blueStoreName, ExtentColor.BLUE));
 			
-			String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-			String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
 			
-			if(!greenSelection.contains("National Totals and Averages")) {
+			if(comparedMarkets.contains(hc.getGreenMarket())==false) {
 				marketDetails = hc.getGreenDetails();
-				greenPopulation("compare");
-				greenHouseholds("compare");
-				greenRentalProperties("compare");
+				greenPopulation();
+				greenHouseholds();
+				greenRentalProperties();
 			}
 			
-			if(!blueSelection.contains("State Total and Averages")) {
+			if(comparedMarkets.contains(hc.getBlueMarket())==false) {
 				marketDetails = hc.getBlueDetails();
-				bluePopulation("compare");
-				blueHouseholds("compare");
-				blueRentalProperties("compare");
+				bluePopulation();
+				blueHouseholds();
+				blueRentalProperties();
 			}
 			
 		} catch(Exception e) {

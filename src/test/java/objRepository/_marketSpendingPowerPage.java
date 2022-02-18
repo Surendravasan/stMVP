@@ -91,13 +91,5 @@ public class _marketSpendingPowerPage {
 	protected WebElement $avgRentBlue() {
 		return _base.driver.findElement(By.cssSelector("div[class*='row-style']>div:nth-child(3) tbody tr:nth-child(3)>td")); 
 	}
-	
-	/* Compare */
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='green'] select")
-	protected WebElement $greenDropDown;
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='blue'] select")
-	protected WebElement $blueDropDown;
-	
+
 }

@@ -2,8 +2,8 @@ package pageMethods;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.openqa.selenium.support.ui.Select;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
@@ -21,6 +21,7 @@ public class _storesInMarketStoreTypes extends _storesInMarketStoreTypesPage {
 	ExtentTest node;
 	HashMap<String, String> marketDetails;
 	_helperClass hc = new _helperClass();
+	List<String> comparedMarkets = new LinkedList<>();
 	
 	
 	public _storesInMarketStoreTypes() {
@@ -77,38 +78,40 @@ public class _storesInMarketStoreTypes extends _storesInMarketStoreTypesPage {
 	
 	/* Store Types - Green Values */
 	
-	public void greenStoreTypes(String marketType) {
-		HashMap<String, String> dbValues;
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($title.getText()+" - "+market);
-		
-		try {
-			if(marketType.equalsIgnoreCase("National")){
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.nationalStoreTypes());
-			} else {
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.greenBlueStoreTypes(marketDetails));
-			}
-			ArrayList<String> as = new ArrayList<String>(dbValues.values());
-			int a = 1;
-			for(int i=1; i<=$noOfColumns.size(); i++) {
-				String header = $storeTypesHeader(_base.driver, i).getText();
-				int innerColCount = (i==1) ? 1 : 2;
-				for(int j=1; j<=innerColCount; j++) {
-					try {
-						String uiValue = $rateStoreTypeValues(_base.driver, 2, a).getText();
-						String dbValue = as.get(a-1);
-						if(j==2) {
-							header = header+"%";
+	public void greenStoreTypes() {
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			HashMap<String, String> dbValues;
+			node = test.createNode($title.getText()+" - "+hc.getGreenMarket());
+			
+			try {
+//				if(marketType.equalsIgnoreCase("National")){
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.nationalStoreTypes());
+				} else {
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.greenBlueStoreTypes(marketDetails));
+				}
+				ArrayList<String> as = new ArrayList<String>(dbValues.values());
+				int a = 1;
+				for(int i=1; i<=$noOfColumns.size(); i++) {
+					String header = $storeTypesHeader(_base.driver, i).getText();
+					int innerColCount = (i==1) ? 1 : 2;
+					for(int j=1; j<=innerColCount; j++) {
+						try {
+							String uiValue = $rateStoreTypeValues(_base.driver, 2, a).getText();
+							String dbValue = as.get(a-1);
+							if(j==2) {
+								header = header+"%";
+							}
+							_helperClass.compareUiDb(header, uiValue, dbValue, node);
+							a+=1;
+						} catch(Exception e) {
+							node.log(Status.ERROR, "Exception: "+e);
 						}
-						_helperClass.compareUiDb(header, uiValue, dbValue, node);
-						a+=1;
-					} catch(Exception e) {
-						node.log(Status.ERROR, "Exception: "+e);
 					}
 				}
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
 	}
 	
@@ -117,14 +120,15 @@ public class _storesInMarketStoreTypes extends _storesInMarketStoreTypesPage {
 	
 	/* Store Types - Blue Values */
 	
-	public void blueStoreTypes(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void blueStoreTypes() {
+//		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues;
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($title.getText()+" - "+market);
+			node = test.createNode($title.getText()+" - "+hc.getBlueMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+//				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.stateStoreTypes());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.greenBlueStoreTypes(marketDetails));
@@ -162,23 +166,27 @@ public class _storesInMarketStoreTypes extends _storesInMarketStoreTypesPage {
 	
 	public void compareMarket() {
 		node = test.createNode("Compare Selected Markets");
+		
+		comparedMarkets.add("-- None --");
+		comparedMarkets.add(hc.getGreenMarket());
+		comparedMarkets.add(hc.getBlueMarket());
+		
 		try {
 			hc.compareMarket();
 			
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.greenStoreName, ExtentColor.GREEN));
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.blueStoreName, ExtentColor.BLUE));
 			
-			String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-			String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-			
-			if(!greenSelection.contains("National Totals and Averages")) {
+//			if(!greenSelection.contains("National Totals and Averages")) {
+			if(comparedMarkets.contains(hc.getGreenMarket())==false) {
 				marketDetails = hc.getGreenDetails();
-				greenStoreTypes("compare");
+				greenStoreTypes();
 			}
 			
-			if(!blueSelection.contains("State Total and Averages")) {
+//			if(!blueSelection.contains("State Total and Averages")) {
+			if(comparedMarkets.contains(hc.getBlueMarket())==false) {
 				marketDetails = hc.getBlueDetails();
-				blueStoreTypes("compare");
+				blueStoreTypes();
 			}
 		} catch(Exception e) {
 			node.log(Status.ERROR, "Exception: "+e);

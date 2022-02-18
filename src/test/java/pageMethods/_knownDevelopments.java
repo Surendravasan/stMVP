@@ -8,7 +8,6 @@ import com.aventstack.extentreports.Status;
 import objRepository._knownDevPage;
 import pageUtilities._base;
 import pageUtilities._databaseUtils;
-import pageUtilities._queries;
 import pageUtilities._testData;
 import pageUtilities._utils;
 
@@ -30,6 +29,7 @@ public class _knownDevelopments extends _knownDevPage {
 	public void knownDevelopment() {
 		
 			node = test.log(Status.INFO, "Known Developments");
+			System.out.println();
 			
 			try {
 				HashMap<String, String> gridValues = new HashMap<>();

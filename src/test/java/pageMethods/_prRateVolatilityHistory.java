@@ -25,6 +25,8 @@ public class _prRateVolatilityHistory extends _prRateVolatilityHistoryPage {
 	_helperClass hc = new _helperClass();
 	List<String> verifiedDateRangeList = new LinkedList<>();
 	List<String> noOfUnitsToTest;
+	List<String> comparedMarkets = new LinkedList<>();
+	
 	
 	
 	public _prRateVolatilityHistory() {
@@ -109,11 +111,7 @@ public class _prRateVolatilityHistory extends _prRateVolatilityHistoryPage {
 				for(int i=1; i<=1; i++) {
 					thisMarket(unitName);
 					greenValue(unitName);
-					
-					String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-					if(!blueSelection.contains("-- None --")) {
-						blueValue(unitName);
-					}
+					blueValue(unitName);
 				}
 			} catch (Exception e) {
 				nchild.log(Status.ERROR, "Exception: "+e);
@@ -154,33 +152,36 @@ public class _prRateVolatilityHistory extends _prRateVolatilityHistoryPage {
 	/* Verify Green Values */
 	
 	void greenValue(String unitName) {
-		try {
-			String header = "";
-			int nrandom = _utils.getRandNumber($noOfMonthsList.size());
-			
-			do {
-				System.out.println();
-				_utils.moveToElement(greenValue(_base.driver, nrandom));
-				_utils.waitForElementVisible($tooltip(_base.driver, $toolTipsSize.size()));
-			} while($toolTipsSize.size()==0);
-			
-			String greenValue = $tooltip(_base.driver, $toolTipsSize.size()).getText().replace("Volatility: ", "");
-			System.out.println(greenValue);
-			String uiMonthYear[] = monthValue(_base.driver, nrandom).getText().split("'");
-			_utils.clickAction($legend);
-			
-			LinkedList<String>list = _utils.getFirstLastDate(uiMonthYear[0].trim(), uiMonthYear[1].trim());
-			String dbValue = "";
-			if(greenMarketDetails.isEmpty()==true) {
-				header = "National";
-				dbValue = _databaseUtils.getStringValue(_testData.queryIns.nationalRateVolatilityHistory(unitName, list.getFirst(), list.getLast()));
-			} else {
-				header = "Green Market ";
-				dbValue = _databaseUtils.getStringValue(_testData.queryIns.greenBlueRateVolatilityHistory(unitName, list.getFirst(), list.getLast(), greenMarketDetails));
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			try {
+				String header = "";
+				int nrandom = _utils.getRandNumber($noOfMonthsList.size());
+				
+				do {
+					System.out.println();
+					_utils.moveToElement(greenValue(_base.driver, nrandom));
+					_utils.waitForElementVisible($tooltip(_base.driver, $toolTipsSize.size()));
+				} while($toolTipsSize.size()==0);
+				
+				String greenValue = $tooltip(_base.driver, $toolTipsSize.size()).getText().replace("Volatility: ", "");
+				System.out.println(greenValue);
+				String uiMonthYear[] = monthValue(_base.driver, nrandom).getText().split("'");
+				_utils.clickAction($legend);
+				
+				LinkedList<String>list = _utils.getFirstLastDate(uiMonthYear[0].trim(), uiMonthYear[1].trim());
+				String dbValue = "";
+//				if(greenMarketDetails.isEmpty()==true) {
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					header = "National";
+					dbValue = _databaseUtils.getStringValue(_testData.queryIns.nationalRateVolatilityHistory(unitName, list.getFirst(), list.getLast()));
+				} else {
+					header = "Green Market ";
+					dbValue = _databaseUtils.getStringValue(_testData.queryIns.greenBlueRateVolatilityHistory(unitName, list.getFirst(), list.getLast(), greenMarketDetails));
+				}
+				_helperClass.compareUiDb(header+" ("+uiMonthYear[0]+"-"+uiMonthYear[1]+")", greenValue, dbValue, nchild);
+			} catch (Exception e) {
+				node.log(Status.ERROR, e);
 			}
-			_helperClass.compareUiDb(header+" ("+uiMonthYear[0]+"-"+uiMonthYear[1]+")", greenValue, dbValue, nchild);
-		} catch (Exception e) {
-			node.log(Status.ERROR, e);
 		}
 	}
 	
@@ -191,6 +192,7 @@ public class _prRateVolatilityHistory extends _prRateVolatilityHistoryPage {
 	
 	void blueValue(String unitName) {
 //		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			try {
 				String header = "";
 				int srandom = _utils.getRandNumber($noOfMonthsList.size());
@@ -208,7 +210,8 @@ public class _prRateVolatilityHistory extends _prRateVolatilityHistoryPage {
 				
 				LinkedList<String>list = _utils.getFirstLastDate(uiMonthYear[0].trim(), uiMonthYear[1].trim());
 				String dbValue = "";
-				if(blueMarketDetails.isEmpty()==true) {
+//				if(blueMarketDetails.isEmpty()==true) {
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					header = "State";
 					dbValue = _databaseUtils.getStringValue(_testData.queryIns.stateRateVolatilityHistory(unitName, list.getFirst(), list.getLast()));
 				} else {
@@ -219,7 +222,7 @@ public class _prRateVolatilityHistory extends _prRateVolatilityHistoryPage {
 			} catch (Exception e) {
 				node.log(Status.ERROR, e);
 			}
-//		}
+		}
 	}
 	
 	
@@ -258,16 +261,18 @@ public class _prRateVolatilityHistory extends _prRateVolatilityHistoryPage {
 	
 	public void compareMarket() {
 		node = test.createNode("Compare Selected Markets");
+		
+		comparedMarkets.add("-- None --");
+		comparedMarkets.add(hc.getGreenMarket());
+		comparedMarkets.add(hc.getBlueMarket());
+		
 		try {
 			hc.compareMarket();
 			
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.greenStoreName, ExtentColor.GREEN));
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.blueStoreName, ExtentColor.BLUE));
 			
-			String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-			String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-			
-			if(!greenSelection.contains("National Totals and Averages") || !blueSelection.contains("State Total and Averages")) {
+			if((comparedMarkets.contains(hc.getGreenMarket())==false) || (comparedMarkets.contains(hc.getBlueMarket())==false)) {
 				greenMarketDetails = hc.getGreenDetails();
 				blueMarketDetails = hc.getBlueDetails();
 				dateRange3Months();

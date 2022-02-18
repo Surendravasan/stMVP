@@ -85,13 +85,13 @@ public class _mvpTest extends _base {
 		
 		_allStores as = new _allStores();
 		as.overviewHeader();
-		as.allStoresGrid(5);
+		as.allStoresGrid(1);
 	}
 	
 	
 	
 	
-//	@Test(priority=4, dependsOnMethods="allStores")
+	@Test(priority=4, dependsOnMethods="allStores")
 	public void executiveSummary() {
 		_base.test = _base.report.createTest("Executive Summary");
 		
@@ -105,7 +105,7 @@ public class _mvpTest extends _base {
 	
 	
 	
-//	@Test(priority=5, dependsOnMethods="executiveSummary")
+	@Test(priority=5, dependsOnMethods="executiveSummary")
 	public void knownDevelopments() {
 		_base.test = _base.report.createTest("Known Developments");
 		
@@ -122,14 +122,14 @@ public class _mvpTest extends _base {
 		
 		_demographics de = new _demographics();
 		de.thisMarketPopulation();
-		de.greenPopulation("National");
-		de.bluePopulation("State");
+		de.greenPopulation();
+		de.bluePopulation();
 		de.thisMarketHouseholds();
-		de.greenHouseholds("National");
-		de.blueHouseholds("State");
+		de.greenHouseholds();
+		de.blueHouseholds();
 		de.thisMarketRentalProperties();
-		de.greenRentalProperties("National");
-		de.blueRentalProperties("State");
+		de.greenRentalProperties();
+		de.blueRentalProperties();
 		
 		de.compareMarket();
 		de.resetComparedMarket();
@@ -145,8 +145,8 @@ public class _mvpTest extends _base {
 		
 		_iaCurrentInvAvailByUnitType ia = new _iaCurrentInvAvailByUnitType();
 		ia.thisMarketCurrentInventory();
-		ia.greenCurrentInventory("National");
-		ia.blueCurrentInventory("State");
+		ia.greenCurrentInventory();
+		ia.blueCurrentInventory();
 		
 		ia.compareMarket();
 		ia.resetComparedMarket();
@@ -158,7 +158,7 @@ public class _mvpTest extends _base {
 	@Test(priority=8, dependsOnMethods="currentInventoryAvailability")
 	public void inventoryAvailabilityHistory() {
 		
-		_base.test = _base.report.createTest("Inventory Availability History");
+ 		_base.test = _base.report.createTest("Inventory Availability History");
 		
 		/* query output values not matching for National
 		_inventoryAvailabilityHistory iah = new _inventoryAvailabilityHistory();
@@ -179,16 +179,16 @@ public class _mvpTest extends _base {
 		
 		_marketSpendingPower ms = new _marketSpendingPower();
 		ms.thisMarketHouseholdIncome();
-		ms.greenHouseholdIncome("National");
-		ms.blueHouseholdIncome("State");
+		ms.greenHouseholdIncome();
+		ms.blueHouseholdIncome();
 		
 		ms.thisMarketAverageProperty();
-		ms.greenAverageProperty("National");
-		ms.blueAverageProperty("State");
+		ms.greenAverageProperty();
+		ms.blueAverageProperty();
 		
 		ms.thisMarketAverageRental();
-		ms.greenAverageRental("National");
-		ms.blueAverageRental("State");
+		ms.greenAverageRental();
+		ms.blueAverageRental();
 		
 		ms.compareMarket();
 		ms.resetComparedMarket();
@@ -204,19 +204,19 @@ public class _mvpTest extends _base {
 		
 		_marketSupplyMetrics msm = new _marketSupplyMetrics();
 		msm.thisMarketCapita();
-		msm.greenCapita("National");
-		msm.blueCapita("State");
+		msm.greenCapita();
+		msm.blueCapita();
 		
 		msm.thisMarketHousehold();
-		msm.greenHousehold("National");
-		msm.blueHousehold("State");
+		msm.greenHousehold();
+		msm.blueHousehold();
 		
 		msm.thisMarketRentalProp();
-		msm.greenRentalProp("National");
-		msm.blueRentalProp("State");
+		msm.greenRentalProp();
+		msm.blueRentalProp();
 		
-//		msm.compareMarket();
-//		msm.resetComparedMarket();
+		msm.compareMarket();
+		msm.resetComparedMarket();
 	}
 	
 	
@@ -229,8 +229,8 @@ public class _mvpTest extends _base {
 		
 		_prRatePerSqFtByStoreType pr = new _prRatePerSqFtByStoreType();
 		pr.thisMarketRateByStoreType();
-		pr.greenRateByStoreType("National");
-		pr.blueRateByStoreType("State");
+		pr.greenRateByStoreType();
+		pr.blueRateByStoreType();
 		
 		pr.compareMarket();
 		pr.resetComparedMarket();
@@ -248,8 +248,8 @@ public class _mvpTest extends _base {
 		prUnit.thisMarketRateByUnitType();
 		
 		
-		prUnit.greenRateByUnitType("National");
-		prUnit.blueRateByUnitType("State"); 
+		prUnit.greenRateByUnitType();
+		prUnit.blueRateByUnitType(); 
 		
 		prUnit.compareMarket();
 		prUnit.resetComparedMarket();
@@ -265,8 +265,8 @@ public class _mvpTest extends _base {
 		
 		_prAverageUnitTypesRates prAvg = new _prAverageUnitTypesRates();
 		prAvg.thisMarketAvgUnitRates();
-		prAvg.greenAvgUnitRates("National");
-		prAvg.blueAvgUnitRates("State");
+		prAvg.greenAvgUnitRates();
+		prAvg.blueAvgUnitRates();
 		
 		prAvg.compareMarket();
 		prAvg.resetComparedMarket();
@@ -335,8 +335,8 @@ public class _mvpTest extends _base {
 		
 		_storesInMarketStoreTypes st = new _storesInMarketStoreTypes();
 		st.thisMarketStoreTypes();
-		st.greenStoreTypes("National");
-		st.blueStoreTypes("State");
+		st.greenStoreTypes();
+		st.blueStoreTypes();
 		
 		st.compareMarket();
 		st.resetComparedMarket();
@@ -352,8 +352,8 @@ public class _mvpTest extends _base {
 		
 		_storesInMarketUnitTypes ut = new _storesInMarketUnitTypes();
 		ut.thisMarketRateByUnitType();
-		ut.greenRateByUnitType("National");
-		ut.blueRateByUnitType("State");
+		ut.greenRateByUnitType();
+		ut.blueRateByUnitType();
 		
 		ut.compareMarket();
 		ut.resetComparedMarket();

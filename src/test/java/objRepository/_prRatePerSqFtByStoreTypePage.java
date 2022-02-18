@@ -47,13 +47,4 @@ public class _prRatePerSqFtByStoreTypePage {
 		return _base.driver.findElement(By.cssSelector("div[class*='item-content'] tbody>tr:nth-child("+row+")>td:nth-child("+col+")")); 
 	}
 	
-	
-	/* Compare */
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='green'] select")
-	protected WebElement $greenDropDown;
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='blue'] select")
-	protected WebElement $blueDropDown;
-	
 }

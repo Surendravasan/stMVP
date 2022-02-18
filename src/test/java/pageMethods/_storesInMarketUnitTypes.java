@@ -2,9 +2,8 @@ package pageMethods;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-
-import org.openqa.selenium.support.ui.Select;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
@@ -22,6 +21,9 @@ public class _storesInMarketUnitTypes extends _storesInMarketUnitTypesPage {
 	ExtentTest node;
 	_helperClass hc = new _helperClass();
 	HashMap<String, String> marketDetails;
+	List<String> comparedMarkets = new LinkedList<>();
+	
+	
 	
 	public _storesInMarketUnitTypes() {
 		super();
@@ -73,37 +75,38 @@ public class _storesInMarketUnitTypes extends _storesInMarketUnitTypesPage {
 	
 	/* Unit Types Offered - Green Values */
 	
-	public void greenRateByUnitType(String marketType) {
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($title.getText()+" - "+market);
-		String unitName = "";
-		String unitValueUi = "";
-		String unitValueDb = "";
-		
-		/* query output values not matching for below units */
-		List<String> skippedUnits = Arrays.asList("");
-		
-		try {
-			for(int i=1; i<=$unitList.size(); i++) {
-				try {
-					unitName = $unitLabel(_base.driver, i).getText();
-					if(skippedUnits.contains(unitName.toUpperCase())==false) {
-						unitValueUi = $unitValue(_base.driver, 2, i).getText();
-						if(marketType.equalsIgnoreCase("National")){
-							unitValueDb = _databaseUtils.getStringValue(_testData.queryIns.nationalUnitTypes(unitName));
-						} else {
-							unitValueDb = _databaseUtils.getStringValue(_testData.queryIns.greenBlueUnitTypes(unitName, marketDetails));
+	public void greenRateByUnitType() {
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			node = test.createNode($title.getText()+" - "+hc.getGreenMarket());
+			String unitName = "";
+			String unitValueUi = "";
+			String unitValueDb = "";
+			
+			/* query output values not matching for below units */
+			List<String> skippedUnits = Arrays.asList("");
+			
+			try {
+				for(int i=1; i<=$unitList.size(); i++) {
+					try {
+						unitName = $unitLabel(_base.driver, i).getText();
+						if(skippedUnits.contains(unitName.toUpperCase())==false) {
+							unitValueUi = $unitValue(_base.driver, 2, i).getText();
+//							if(marketType.equalsIgnoreCase("National")){
+							if(hc.getGreenMarket().contains("National Totals and Averages")) {
+								unitValueDb = _databaseUtils.getStringValue(_testData.queryIns.nationalUnitTypes(unitName));
+							} else {
+								unitValueDb = _databaseUtils.getStringValue(_testData.queryIns.greenBlueUnitTypes(unitName, marketDetails));
+							}
+							_helperClass.compareUiDb(unitName, unitValueUi, unitValueDb, node);
 						}
-						_helperClass.compareUiDb(unitName, unitValueUi, unitValueDb, node);
+					} catch(Exception e) {
+						node.log(Status.ERROR, "Exception: "+e);
 					}
-				} catch(Exception e) {
-					node.log(Status.ERROR, "Exception: "+e);
 				}
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
-		
 	}
 	
 	
@@ -112,10 +115,10 @@ public class _storesInMarketUnitTypes extends _storesInMarketUnitTypesPage {
 	
 	/* Unit Types Offered - Blue Values */
 	
-	public void blueRateByUnitType(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($title.getText()+" - "+market);
+	public void blueRateByUnitType() {
+//		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+		if(!hc.getBlueMarket().contains("-- None --")) {
+			node = test.createNode($title.getText()+" - "+hc.getBlueMarket());
 			String unitName = "";
 			String unitValueUi = "";
 			String unitValueDb = "";
@@ -129,7 +132,8 @@ public class _storesInMarketUnitTypes extends _storesInMarketUnitTypesPage {
 						unitName = $unitLabel(_base.driver, i).getText();
 						if(skippedUnits.contains(unitName.toUpperCase())==false) {
 							unitValueUi = $unitValue(_base.driver, 3, i).getText();
-							if(marketType.equalsIgnoreCase("State")){
+//							if(marketType.equalsIgnoreCase("State")){
+							if(hc.getBlueMarket().contains("State Total and Averages")) {
 								unitValueDb = _databaseUtils.getStringValue(_testData.queryIns.stateUnitTypes(unitName));
 							} else {
 								unitValueDb = _databaseUtils.getStringValue(_testData.queryIns.greenBlueUnitTypes(unitName, marketDetails));
@@ -154,23 +158,27 @@ public class _storesInMarketUnitTypes extends _storesInMarketUnitTypesPage {
 	
 	public void compareMarket() {
 		node = test.createNode("Compare Markets");
+		
+		comparedMarkets.add("-- None --");
+		comparedMarkets.add(hc.getGreenMarket());
+		comparedMarkets.add(hc.getBlueMarket());
+		
 		try {
 			hc.compareMarket();
 			
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.greenStoreName, ExtentColor.GREEN));
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.blueStoreName, ExtentColor.BLUE));
 			
-			String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-			String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-			
-			if(!greenSelection.contains("National Totals and Averages")) {
+//			if(!greenSelection.contains("National Totals and Averages")) {
+			if(comparedMarkets.contains(hc.getGreenMarket())==false) {
 				marketDetails = hc.getGreenDetails();
-				greenRateByUnitType("compare");
+				greenRateByUnitType();
 			}
 			
-			if(!blueSelection.contains("State Total and Averages")) {
+//			if(!blueSelection.contains("State Total and Averages")) {
+			if(comparedMarkets.contains(hc.getBlueMarket())==false) {
 				marketDetails = hc.getBlueDetails();
-				blueRateByUnitType("compare");
+				blueRateByUnitType();
 			}
 		} catch(Exception e) {
 			node.log(Status.ERROR, "Exception: "+e);

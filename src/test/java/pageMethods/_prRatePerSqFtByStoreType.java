@@ -1,8 +1,8 @@
 package pageMethods;
 
 import java.util.HashMap;
-
-import org.openqa.selenium.support.ui.Select;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
@@ -20,6 +20,7 @@ public class _prRatePerSqFtByStoreType extends _prRatePerSqFtByStoreTypePage {
 	ExtentTest node;
 	HashMap<String, String> marketDetails;
 	_helperClass hc = new _helperClass();
+	List<String> comparedMarkets = new LinkedList<>();
 	
 	
 	public _prRatePerSqFtByStoreType() {
@@ -70,31 +71,31 @@ public class _prRatePerSqFtByStoreType extends _prRatePerSqFtByStoreTypePage {
 	
 	/* Rate per Square Feet by Store Type - Green Values */
 	
-	public void greenRateByStoreType(String marketType) {
-		HashMap<String, String> dbValues;
-		String market = (marketType.equalsIgnoreCase("National")) ? marketType : hc.greenStoreName;
-		node = test.createNode($title.getText()+" - "+market);
-		
-		try {
-			if(marketType.equalsIgnoreCase("National")){
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.nationalRateByStoreType());
-			} else {
-				dbValues = _databaseUtils.mapStrFl(_testData.queryIns.greenBlueRateByStoreType(marketDetails));
-			}
-			for(int i=1; i<=$noOfColumns.size(); i++) {
-				try {
-					String header = $rateStoreTypeHeader(_base.driver, i).getText();
-					String uiValue = $rateStoreTypeValues(_base.driver, 2, i).getText();
-					String dbValue = dbValues.get(header);
-					_helperClass.compareUiDb(header, uiValue, dbValue, node);
-				} catch(Exception e) {
-					node.log(Status.ERROR, "Exception: "+e);
+	public void greenRateByStoreType() {
+		if(!hc.getGreenMarket().contains("-- None --")) {
+			HashMap<String, String> dbValues;
+			node = test.createNode($title.getText()+" - "+hc.getGreenMarket());
+			
+			try {
+				if(hc.getGreenMarket().contains("National Totals and Averages")){
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.nationalRateByStoreType());
+				} else {
+					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.greenBlueRateByStoreType(marketDetails));
 				}
+				for(int i=1; i<=$noOfColumns.size(); i++) {
+					try {
+						String header = $rateStoreTypeHeader(_base.driver, i).getText();
+						String uiValue = $rateStoreTypeValues(_base.driver, 2, i).getText();
+						String dbValue = dbValues.get(header);
+						_helperClass.compareUiDb(header, uiValue, dbValue, node);
+					} catch(Exception e) {
+						node.log(Status.ERROR, "Exception: "+e);
+					}
+				}
+			} catch(Exception e) {
+				node.log(Status.ERROR, "Exception: "+e);
 			}
-		} catch(Exception e) {
-			node.log(Status.ERROR, "Exception: "+e);
 		}
-		
 	}
 	
 	
@@ -105,14 +106,13 @@ public class _prRatePerSqFtByStoreType extends _prRatePerSqFtByStoreTypePage {
 	
 	/* Rate per Square Feet by Store Type - Blue Values */
 	
-	public void blueRateByStoreType(String marketType) {
-		if(_testData.regId==3 && !marketType.equalsIgnoreCase("State")) {
+	public void blueRateByStoreType() {
+		if(!hc.getBlueMarket().contains("-- None --")) {
 			HashMap<String, String> dbValues;
-			String market = (marketType.equalsIgnoreCase("State")) ? marketType : hc.blueStoreName;
-			node = test.createNode($title.getText()+" - "+market);
+			node = test.createNode($title.getText()+" - "+hc.getBlueMarket());
 			
 			try {
-				if(marketType.equalsIgnoreCase("State")){
+				if(hc.getBlueMarket().contains("State Total and Averages")) {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.stateRateByStoreType());
 				} else {
 					dbValues = _databaseUtils.mapStrFl(_testData.queryIns.greenBlueRateByStoreType(marketDetails));
@@ -141,23 +141,25 @@ public class _prRatePerSqFtByStoreType extends _prRatePerSqFtByStoreTypePage {
 	
 	public void compareMarket() {
 		node = test.createNode("Compare Selected Markets");
+		
+		comparedMarkets.add("-- None --");
+		comparedMarkets.add(hc.getGreenMarket());
+		comparedMarkets.add(hc.getBlueMarket());
+		
 		try {
 			hc.compareMarket();
 			
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.greenStoreName, ExtentColor.GREEN));
 			node.log(Status.INFO, MarkupHelper.createLabel(hc.blueStoreName, ExtentColor.BLUE));
 			
-			String greenSelection = new Select($greenDropDown).getFirstSelectedOption().getText();
-			String blueSelection = new Select($blueDropDown).getFirstSelectedOption().getText();
-			
-			if(!greenSelection.contains("National Totals and Averages")) {
+			if(comparedMarkets.contains(hc.getGreenMarket())==false) {
 				marketDetails = hc.getGreenDetails();
-				greenRateByStoreType("compare");
+				greenRateByStoreType();
 			}
 			
-			if(!blueSelection.contains("State Total and Averages")) {
+			if(comparedMarkets.contains(hc.getBlueMarket())==false) {
 				marketDetails = hc.getBlueDetails();
-				blueRateByStoreType("compare");
+				blueRateByStoreType();
 			}
 			
 		} catch(Exception e) {

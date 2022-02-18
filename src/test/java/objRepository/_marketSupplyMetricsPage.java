@@ -80,14 +80,4 @@ public class _marketSupplyMetricsPage {
 	protected WebElement $rentalPropValues(WebDriver driver, int row, int col) {
 		return _base.driver.findElement(By.cssSelector("div[class*='row-style']>div:nth-child(3) tbody>tr:nth-child("+row+")>td:nth-child("+col+")")); 
 	}
-	
-	
-	/* Compare */
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='green'] select")
-	protected WebElement $greenDropDown;
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='blue'] select")
-	protected WebElement $blueDropDown;
-	
 }

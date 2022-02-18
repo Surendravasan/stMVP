@@ -75,13 +75,4 @@ public class _prRatePerSqFtHistoryGraphPage {
 	protected WebElement $stateValue;
 
 	
-	/* Compare */
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='green'] select")
-	protected WebElement $greenDropDown;
-	
-	@FindBy(css="div[class*='compare-markets'] div[class*='blue'] select")
-	protected WebElement $blueDropDown;
-	
-	
 }

@@ -14,8 +14,6 @@ import com.aventstack.extentreports.markuputils.ExtentColor;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 import objRepository._iaInvAvailByUnitTypeHistoryPage;
 import pageUtilities._base;
-import pageUtilities._databaseUtils;
-import pageUtilities._queries;
 import pageUtilities._utils;
 
 public class _iaInvAvailByUnitTypeHistory extends _iaInvAvailByUnitTypeHistoryPage {
